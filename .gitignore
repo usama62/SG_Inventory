@@ -19,7 +19,6 @@ yarn-error.log
 .history/*
 /public/css/*
 /public/js/*
-/public/uploads/*
 /public/build/*
 /Modules/*
 !/Modules

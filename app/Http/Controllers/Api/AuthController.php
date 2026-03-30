@@ -222,7 +222,10 @@ class AuthController extends ApiBaseController
      $order = Order::with(['warehouse', 'user', 'items', 'items.product', 'items.unit', 'orderPayments:id,order_id,payment_id,amount', 'orderPayments.payment:id,payment_mode_id', 'orderPayments.payment.paymentMode:id,name'])
             ->where('unique_id', $uniqueId)
             ->first();
-    
+
+        if (! $order) {
+            abort(404, 'Order not found');
+        }
 
         $lang = Lang::where('key', $langKey)->first();
         if (!$lang) {
@@ -262,15 +265,11 @@ class AuthController extends ApiBaseController
             'traslations' => $invoiceTranslation,
             'warehouse' => $warehouse,
             'staffMember' => $staffMember,
-            'customer' =>  $customer,
-            
-            
-            // 'barcodeData' => DNS1D::getBarcodePNG("3243243243", 'C128'),
+            'customer' => $customer,
+            'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
         ];
 
-    // dd($pdfData);
-
-    $pdf = PDF::loadView('pdf.receipt', $pdfData);
+        $pdf = PDF::loadView('pdf.receipt', $pdfData);
 
     return $pdf->download('receipt-' . $order->unique_id . '.pdf');
 }

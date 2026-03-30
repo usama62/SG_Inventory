@@ -267,8 +267,8 @@
                             <template v-if="column.dataIndex === 'single_unit_price'">
                                 {{ formatAmountCurrency(record.single_unit_price) }}
                             </template>
-                            <template v-if="column.dataIndex === 'discount_amount'">
-                                {{ formatAmountCurrency(record.discount_amount) }}
+                            <template v-if="column.dataIndex === 'total_discount'">
+                                {{ formatAmountCurrency(record.total_discount) }}
                             </template>
                             <template v-if="column.dataIndex === 'total_tax'">
                                 {{ formatAmountCurrency(record.total_tax) }}
@@ -355,6 +355,120 @@
                                         ])
                                     "
                                     :rows="5"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+                    </a-row>
+                    <a-row :gutter="16">
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item
+                                :label="'COUNTRY OF ORIGIN OF GOODS'"
+                                name="country_of_origin_of_goods"
+                            >
+                                <a-input
+                                    v-model:value="formData.country_of_origin_of_goods"
+                                    :placeholder="'Enter country'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'FINAL DESTINATION'" name="final_destination">
+                                <a-input
+                                    v-model:value="formData.final_destination"
+                                    :placeholder="'Enter destination'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'MARKS & NOS.'" name="marks_and_nos">
+                                <a-input
+                                    v-model:value="formData.marks_and_nos"
+                                    :placeholder="'Enter marks & numbers'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'TERMS OF DELIVERY'" name="terms_of_delivery">
+                                <a-input
+                                    v-model:value="formData.terms_of_delivery"
+                                    :placeholder="'e.g. FOB, CIF'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'PAYMENT TERMS'" name="payment_terms">
+                                <a-input
+                                    v-model:value="formData.payment_terms"
+                                    :placeholder="'e.g. 30 days'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'BENEFICIARY NAME'" name="beneficiary_name">
+                                <a-input
+                                    v-model:value="formData.beneficiary_name"
+                                    :placeholder="'Enter name'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'BANK NAME'" name="bank_name">
+                                <a-input
+                                    v-model:value="formData.bank_name"
+                                    :placeholder="'Enter bank'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'ACCOUNT NO'" name="account_no">
+                                <a-input
+                                    v-model:value="formData.account_no"
+                                    :placeholder="'Enter account number'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'IBAN NO'" name="iban_no">
+                                <a-input
+                                    v-model:value="formData.iban_no"
+                                    :placeholder="'Enter IBAN'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'SWIFT CODE'" name="swift_code">
+                                <a-input
+                                    v-model:value="formData.swift_code"
+                                    :placeholder="'Enter SWIFT'"
+                                    :disabled="editOrderDisable"
+                                />
+                            </a-form-item>
+                        </a-col>
+
+                        <a-col :xs="24" :sm="24" :md="12" :lg="12">
+                            <a-form-item :label="'BRANCH'" name="branch">
+                                <a-input
+                                    v-model:value="formData.branch"
+                                    :placeholder="'Enter branch'"
                                     :disabled="editOrderDisable"
                                 />
                             </a-form-item>
@@ -794,24 +908,33 @@ export default {
                 warehousesPromise,
             ]).then(([orderResponse, taxResponse, unitResponse, warehousesResponse]) => {
                 const orderResponseData = orderResponse.data;
+                const ord = orderResponseData.order;
                 formData.value = {
-                    invoice_number: orderResponseData.order.invoice_number,
-                    order_date: orderResponseData.order.order_date,
-                    user_id: orderResponseData.order.x_user_id,
-                    warehouse_id: orderResponseData.order.x_warehouse_id,
-                    notes: orderResponseData.order.notes,
-                    terms_condition: orderResponseData.order.terms_condition,
-                    order_status: orderResponseData.order.order_status,
-                    tax_id: orderResponseData.order.x_tax_id,
-                    tax_rate: orderResponseData.order.tax_rate,
-                    tax_amount: orderResponseData.order.tax_amount,
-                    discount: orderResponseData.order.discount
-                        ? orderResponseData.order.discount
-                        : 0,
-                    shipping: orderResponseData.order.shipping
-                        ? orderResponseData.order.shipping
-                        : 0,
-                    subtotal: orderResponseData.order.total,
+                    order_type: ord.order_type,
+                    invoice_number: ord.invoice_number,
+                    order_date: ord.order_date,
+                    user_id: ord.x_user_id,
+                    warehouse_id: ord.x_warehouse_id,
+                    notes: ord.notes,
+                    terms_condition: ord.terms_condition,
+                    country_of_origin_of_goods: ord.country_of_origin_of_goods ?? "",
+                    final_destination: ord.final_destination ?? "",
+                    marks_and_nos: ord.marks_and_nos ?? "",
+                    terms_of_delivery: ord.terms_of_delivery ?? "",
+                    payment_terms: ord.payment_terms ?? "",
+                    beneficiary_name: ord.beneficiary_name ?? "",
+                    bank_name: ord.bank_name ?? "",
+                    account_no: ord.account_no ?? "",
+                    iban_no: ord.iban_no ?? "",
+                    swift_code: ord.swift_code ?? "",
+                    branch: ord.branch ?? "",
+                    order_status: ord.order_status,
+                    tax_id: ord.x_tax_id,
+                    tax_rate: ord.tax_rate,
+                    tax_amount: ord.tax_amount,
+                    discount: ord.discount ? ord.discount : 0,
+                    shipping: ord.shipping ? ord.shipping : 0,
+                    subtotal: ord.total,
                 };
                 selectedProductIds.value = orderResponseData.ids;
                 selectedProducts.value = orderResponseData.items;

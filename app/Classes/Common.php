@@ -386,6 +386,34 @@ class Common
         }
     }
 
+    /**
+     * Data-URI logo for DomPDF (avoids HTTP fetch of asset() URLs which can hang the request).
+     */
+    public static function getReceiptLogoDataUri(?Company $company = null): ?string
+    {
+        $candidates = [
+            public_path('uploads/receipt-logo.png'),
+            public_path('uploads/receipt-logo.jpg'),
+            public_path('uploads/receipt-logo.jpeg'),
+            public_path('uploads/logo.png'),
+            public_path('images/logo.jpg'),
+        ];
+
+        if ($company && ! empty($company->light_logo)) {
+            $candidates[] = public_path('uploads/companies/' . $company->light_logo);
+        }
+
+        foreach ($candidates as $path) {
+            if (is_readable($path)) {
+                $mime = @mime_content_type($path) ?: 'image/png';
+
+                return 'data:' . $mime . ';base64,' . base64_encode((string) file_get_contents($path));
+            }
+        }
+
+        return null;
+    }
+
     public static function generateOrderUniqueId()
     {
         return Str::random(20);
