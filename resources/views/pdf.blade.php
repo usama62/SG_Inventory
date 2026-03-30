@@ -5,25 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Proforma Invoice</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #fff;
-      color: #000;
-      padding: 15px;
-      font-size: 11.5px;
-      line-height: 1.4;
-    }
-    .container {
-      width: 100%;
-      max-width: 900px;
-      margin: auto;
-      border: 2px solid #000;
-      padding: 18px;
-      position: relative;
-      min-height: 900px;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Arial', sans-serif;
+    background: #fff;
+    color: #000;
+    margin: 0;
+    padding: 0;
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+  .container {
+    width: 95%;
+    max-width: 900px;
+    margin: 15px auto;
+    border: 2px solid #000;
+    padding: 18px;
+    position: relative;
+    min-height: 900px;
+  }
     .header {
       text-align: center;
       font-weight: bold;
@@ -35,6 +36,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 11px;
+      margin-top: 25px;
     }
     .info-table {
     width: 100%;
@@ -92,7 +94,7 @@
     }
     .stamp {
       position: absolute;
-      bottom: 330px;
+      bottom: 300px;
       right: 20px;
       width: 130px;
       opacity: 0.9;
