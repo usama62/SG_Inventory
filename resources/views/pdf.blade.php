@@ -269,18 +269,15 @@ function numberToWords($num)
 
   <!-- Product Table -->
   <table class="product-table">
-    <thead>
       <tr>
-        <th>MARKS & NOS.</th>
-        <th>DESCRIPTION OF GOODS</th>
-        <th>PACKING</th>
-        <th>QTY (IN CS)</th>
-        <th>RATE IN USD PER CS</th>
-        <th>RATE IN AED PER CS</th>
-        <th>AMOUNT IN AED</th>
+        <td>MARKS & NOS.</td>
+        <td>DESCRIPTION OF GOODS</td>
+        <td>PACKING</td>
+        <td>QTY (IN CS)</td>
+        <td>RATE IN USD PER CS</td>
+        <td>RATE IN AED PER CS</td>
+        <td>AMOUNT IN AED</td>
       </tr>
-    </thead>
-    <tbody>
       @foreach($order->items as $item)
         <tr>
           <td>{{ $customer->marks_and_nos ?? '' }}</td>
@@ -299,7 +296,6 @@ function numberToWords($num)
         <td></td>
         <td>{{ number_format($order->total, 2) }}</td>
       </tr>
-    </tbody>
   </table>
 
   <!-- Amount in Words -->
