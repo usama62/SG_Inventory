@@ -199,72 +199,61 @@ function numberToWords($num)
   <div class="header">PROFORMA INVOICE</div>
 
   <!-- Info Table -->
- <table class="info-table">
-    <tr>
-        @if($warehouse->name)
-        <td><span class="label">SHIPPER:</span></td>
-        <td class="value">{{ $warehouse->name }}</td>
-        @endif
+  @php
+    $shipperName = optional($warehouse)->name ?? '';
+    $invoiceNo = $order->invoice_number ?? '';
+    $invoiceDate = $order->order_date ? \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') : '';
+    $invoiceNoAndDate = trim($invoiceNo . ($invoiceDate ? ' / ' . $invoiceDate : ''));
 
-        @if($order->invoice_number || $order->order_date)
-        <td class="right-align"><span class="label">INVOICE NO. & DATE:</span></td>
-        <td class="value">
-            {{ $order->invoice_number ?? '' }}
-            @if($order->order_date)
-                / {{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}
-            @endif
-        </td>
-        @endif
+    $contactNo = optional($warehouse)->address ?? '';
+    $termsOfDelivery = optional($customer)->terms_of_delivery ?? ($order->terms_of_delivery ?? '');
+
+    $buyer = optional($customer)->name ?? ($order->buyer_name ?? '');
+    $paymentTerms = optional($customer)->payment_terms ?? ($order->payment_terms ?? '');
+
+    $address = optional($customer)->address ?? ($order->address ?? '');
+    $countryOfOrigin = optional($customer)->country_of_origin_of_goods ?? ($order->country_of_origin_of_goods ?? '');
+
+    $marksNos = optional($customer)->marks_and_nos ?? ($order->marks_and_nos ?? '');
+    $finalDestination = optional($customer)->final_destination ?? ($order->final_destination ?? '');
+  @endphp
+
+  <table class="info-table">
+    <tr>
+      <td><span class="label">SHIPPER:</span></td>
+      <td class="value">{{ $shipperName }}</td>
+      <td class="right-align"><span class="label">INVOICE NO. & DATE:</span></td>
+      <td class="value">{{ $invoiceNoAndDate }}</td>
     </tr>
 
     <tr>
-        @if($warehouse->address)
-        <td><span class="label">Contact No#:</span></td>
-        <td class="value">{{ $warehouse->address }}</td>
-        @endif
-
-        @if(optional($customer)->terms_of_delivery || optional($order)->terms_of_delivery)
-        <td class="right-align"><span class="label">TERMS OF DELIVERY:</span></td>
-        <td class="value">{{ optional($customer)->terms_of_delivery ?? optional($order)->terms_of_delivery ?? '' }}</td>
-        @endif
+      <td><span class="label">Contact No#:</span></td>
+      <td class="value">{{ $contactNo }}</td>
+      <td class="right-align"><span class="label">TERMS OF DELIVERY:</span></td>
+      <td class="value">{{ $termsOfDelivery }}</td>
     </tr>
 
     <tr>
-        @if(optional($customer)->name || optional($order)->buyer_name)
-        <td><span class="label">BUYER:</span></td>
-        <td class="value">{{ optional($customer)->name ?? optional($order)->buyer_name ?? '' }}</td>
-        @endif
-
-        @if(optional($customer)->payment_terms || optional($order)->payment_terms)
-        <td class="right-align"><span class="label">PAYMENT TERMS:</span></td>
-        <td class="value">{{ optional($customer)->payment_terms ?? optional($order)->payment_terms ?? '' }}</td>
-        @endif
+      <td><span class="label">BUYER:</span></td>
+      <td class="value">{{ $buyer }}</td>
+      <td class="right-align"><span class="label">PAYMENT TERMS:</span></td>
+      <td class="value">{{ $paymentTerms }}</td>
     </tr>
 
     <tr>
-        @if(optional($customer)->address || optional($order)->address)
-        <td><span class="label">ADDRESS:</span></td>
-        <td class="value">{{ optional($customer)->address ?? optional($order)->address ?? '' }}</td>
-        @endif
-
-        @if(optional($customer)->country_of_origin_of_goods || optional($order)->country_of_origin_of_goods)
-        <td class="right-align"><span class="label">COUNTRY OF<br> ORIGIN OF GOODS:</span></td>
-        <td class="value">{{ optional($customer)->country_of_origin_of_goods ?? optional($order)->country_of_origin_of_goods ?? '' }}</td>
-        @endif
+      <td><span class="label">ADDRESS:</span></td>
+      <td class="value">{{ $address }}</td>
+      <td class="right-align"><span class="label">COUNTRY OF<br> ORIGIN OF GOODS:</span></td>
+      <td class="value">{{ $countryOfOrigin }}</td>
     </tr>
 
     <tr>
-        @if(optional($customer)->marks_and_nos || optional($order)->marks_and_nos)
-        <td><span class="label">MARKS & NOS.:</span></td>
-        <td class="value">{{ optional($customer)->marks_and_nos ?? optional($order)->marks_and_nos ?? '' }}</td>
-        @endif
-
-        @if(optional($customer)->final_destination || optional($order)->final_destination)
-        <td class="right-align"><span class="label">FINAL DESTINATION:</span></td>
-        <td class="value">{{ optional($customer)->final_destination ?? optional($order)->final_destination ?? '' }}</td>
-        @endif
+      <td><span class="label">MARKS & NOS.:</span></td>
+      <td class="value">{{ $marksNos }}</td>
+      <td class="right-align"><span class="label">FINAL DESTINATION:</span></td>
+      <td class="value">{{ $finalDestination }}</td>
     </tr>
-</table>
+  </table>
 
 
   <!-- Product Table -->
