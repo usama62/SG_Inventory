@@ -187,8 +187,9 @@
     $receivedByName = optional($staffMember)->name ?? '________________';
     $receivedByCompany = $company->name ?? 'SHAMS GLOBAL TRADING FZ LLC';
 
+    $defaultCompanyAddress = "AL fattan plaza\nOffice no: 904\noffice building Al garhood\nDubai\nU.A.E";
     $footerCompanyLine = ($company->name ?: 'SHAMS GLOBAL TRADING FZ LLC') . ' , '
-        . ($company->address ?: 'BIZ00648, Compass Building, Al Shohada Road, Al Hamra Industrial Zone-FZ, Ras Al Khaimah, UAE');
+        . ($company->address ?: $defaultCompanyAddress);
     $footerLine1 = 'Mob: ' . ($company->phone ?: '+971 56 409 0798') . ', ' . $footerCompanyLine;
     $footerWebsite = $company->website ?: 'https://shamsglobalfzllc.ae';
     $footerLine2 = 'Email: ' . ($company->email ?: 'sufiyanjetham@shamsglobalfzllc.ae')
@@ -239,8 +240,8 @@
         </table>
 
         <footer>
-            <p>Mob: +971 56 409 0798, SHAMS GLOBAL TRADING FZ LLC , BIZ00648, Compass Building, Al Shohada Road, Al Hamra Industrial Zone-FZ, Ras Al Khaimah, UAE</p>
-            <p>Email: sufiyanjetham@shamsglobalfzllc.ae Website: https://shamsglobalfzllc</p>
+            <p>{{ $footerLine1 }}</p>
+            <p>{{ $footerLine2 }}</p>
         </footer>
     </div>
 </body>

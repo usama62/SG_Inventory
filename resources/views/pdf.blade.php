@@ -350,11 +350,18 @@ function numberToWords($num)
     <img src="http://72.61.173.29/images/stamp.png" alt="Company Stamp" />
   </div>
 
+  @php
+    $defaultCompanyAddress = "AL fattan plaza\nOffice no: 904\noffice building Al garhood\nDubai\nU.A.E";
+    $companyAddress = $company->address ?? $defaultCompanyAddress;
+    $companyPhone = $company->phone ?? '+971 56 409 0798';
+    $companyName = $company->name ?? 'SHAMS GLOBAL TRADING FZ LLC';
+    $footerAddress = str_replace(["\r\n", "\r", "\n"], ', ', $companyAddress);
+  @endphp
+
   <!-- Footer -->
   <div class="invoice-footer">
     <p>
-      Mob: +971 56 409 0798, BIZ00648, Compass Building, Al Shohada Road Al Hamra,<br>
-      Industrial Zone-FZ, Ras Al Khaimah, UAE
+      Mob: {{ $companyPhone }}, {{ $companyName }}, {{ $footerAddress }}
     </p>
   </div>
 

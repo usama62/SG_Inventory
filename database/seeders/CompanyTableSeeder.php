@@ -37,7 +37,7 @@ class CompanyTableSeeder extends Seeder
         $setting->short_name = 'Stockifly';
         $setting->email = 'company@example.com';
         $setting->phone = $faker->e164PhoneNumber();
-        $setting->address = '7 street, city, state, 762782';
+        $setting->address = "AL fattan plaza\nOffice no: 904\noffice building Al garhood\nDubai\nU.A.E";
         $setting->currency_id = $currency->id;
         $setting->warehouse_id = $warehouse->id;
         $setting->lang_id = $enLang->id;

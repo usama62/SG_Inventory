@@ -62,7 +62,7 @@ class CreateCompaniesTable extends Migration
                 'short_name' => 'Stockifly',
                 'email' => 'company@example.com',
                 'phone' => '+9199999999',
-                'address' => '7 street, city, state, 762782',
+                'address' => "AL fattan plaza\nOffice no: 904\noffice building Al garhood\nDubai\nU.A.E",
                 // 'currency_id' => $currency->id,
                 // 'warehouse_id' => $warehouse->id,
                 // 'lang_id' => $enLang->id,
