@@ -24,6 +24,7 @@ use App\Models\PaymentMode;
 use App\Models\Product;
 use App\Models\Settings;
 use App\Models\StaffMember;
+use App\Models\Supplier;
 use App\Models\Translation;
 use App\Models\User;
 use App\Models\UserWarehouse;
@@ -160,6 +161,10 @@ class AuthController extends ApiBaseController
             ->where('unique_id', $uniqueId)
             ->first();
 
+        if (! $order) {
+            abort(404, 'Order not found');
+        }
+
         $lang = Lang::where('key', $langKey)->first();
         if (!$lang) {
             $lang = Lang::where('key', 'en')->first();
@@ -183,8 +188,12 @@ class AuthController extends ApiBaseController
 
         
 
-        $company = Company::with('currency')->find($order->company_id) 
+        $company = Company::with('currency')->find($order->company_id)
                 ?? abort(404, 'Company not found');
+
+        if ($order->order_type === 'purchase-orders') {
+            return $this->downloadPurchaseOrderPdf($order, $company);
+        }
 
         $pdfData = [
             'orderStatusText' => $orderStatusText,
@@ -250,11 +259,12 @@ class AuthController extends ApiBaseController
 
         
 
-        $company = Company::with('currency')->find($order->company_id) 
+        $company = Company::with('currency')->find($order->company_id)
                 ?? abort(404, 'Company not found');
 
-               
-            
+        if ($order->order_type === 'purchase-orders') {
+            return $this->downloadPurchaseOrderPdf($order, $company);
+        }
 
         $pdfData = [
             'orderStatusText' => $orderStatusText,
@@ -274,6 +284,33 @@ class AuthController extends ApiBaseController
     return $pdf->download('receipt-' . $order->unique_id . '.pdf');
 }
 
+    protected function downloadPurchaseOrderPdf(Order $order, Company $company)
+    {
+        $warehouse = Warehouse::withoutGlobalScope(CompanyScope::class)->find($order->warehouse_id);
+        $staffMember = StaffMember::withoutGlobalScope(CompanyScope::class)->find($order->staff_user_id);
+        $customer = Customer::withoutGlobalScope(CompanyScope::class)->find($order->user_id);
+        $supplier = Supplier::withoutGlobalScope(CompanyScope::class)->find($order->user_id);
+
+        $items = OrderItem::with('product')
+            ->where('order_id', $order->getKey())
+            ->get();
+
+        $order->setRelation('items', $items);
+
+        $pdfData = [
+            'order' => $order,
+            'company' => $company,
+            'warehouse' => $warehouse,
+            'staffMember' => $staffMember,
+            'supplier' => $supplier,
+            'customer' => $customer,
+            'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
+        ];
+
+        $pdf = PDF::loadView('pdf.purchase-order', $pdfData);
+
+        return $pdf->download($order->invoice_number . '.pdf');
+    }
 
 
     public function login(LoginRequest $request)

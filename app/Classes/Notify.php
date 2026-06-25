@@ -35,6 +35,7 @@ class Notify
             $data['staff_member'] = $sendData;
         } else if (in_array($sendFor, [
             'purchases_create', 'purchases_update', 'purchases_delete',
+            'purchase_orders_create', 'purchase_orders_update', 'purchase_orders_delete',
             'purchase_returns_create', 'purchase_returns_update', 'purchase_returns_delete',
             'sales_create', 'sales_update', 'sales_delete',
             'quotations_create', 'quotations_update', 'quotations_delete',

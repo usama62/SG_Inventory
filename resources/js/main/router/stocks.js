@@ -67,6 +67,47 @@ export default [
                 },
             },
 
+            // Purchase Orders
+            {
+                path: "purchase-orders/edit/:id",
+                component: () =>
+                    import("../views/stock-management/purchases/Edit.vue"),
+                name: "admin.stock.purchase-orders.edit",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "purchases",
+                    menuKey: (route) => "purchase_orders",
+                    permission: (route) => "purchase_orders_edit",
+                    orderType: "purchase-orders",
+                },
+            },
+            {
+                path: "purchase-orders/create",
+                component: () =>
+                    import("../views/stock-management/purchases/Create.vue"),
+                name: "admin.stock.purchase-orders.create",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "purchases",
+                    menuKey: (route) => "purchase_orders",
+                    permission: (route) => "purchase_orders_create",
+                    orderType: "purchase-orders",
+                },
+            },
+            {
+                path: "purchase-orders",
+                component: () =>
+                    import("../views/stock-management/purchases/index.vue"),
+                name: "admin.stock.purchase-orders.index",
+                meta: {
+                    requireAuth: true,
+                    menuParent: "purchases",
+                    menuKey: (route) => "purchase_orders",
+                    permission: (route) => "purchase_orders_view",
+                    orderType: "purchase-orders",
+                },
+            },
+
             // Purchase Returns
             {
                 path: "purchase-returns/edit/:id",

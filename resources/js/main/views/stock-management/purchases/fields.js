@@ -160,6 +160,14 @@ const fields = () => {
                 userType: "customers",
                 permission: "quotations",
             };
+        } else if (orderType.value == "purchase-orders") {
+            pageObjectDetails = {
+                type: "purchase-orders",
+                langKey: "purchase_order",
+                menuKey: "purchase_orders",
+                userType: "suppliers",
+                permission: "purchase_orders",
+            };
         } else if (orderType.value == "stock-transfers") {
             pageObjectDetails = {
                 type: "stock-transfers",
@@ -198,12 +206,20 @@ const fields = () => {
         });
 
         if (pageObject.value.type != 'stock-transfers') {
-            allColumns.push({
-                title: t(`${pageObject.value.langKey}.user`),
-                dataIndex: "user_id",
-                sorter:true,
-                sorter_field:"orders.user_id"
-            });
+            if (pageObject.value.type == 'purchase-orders') {
+                allColumns.push({
+                    title: t('purchase_order.supplier_company_name'),
+                    dataIndex: 'supplier_company_name',
+                    sorter: true,
+                });
+            } else {
+                allColumns.push({
+                    title: t(`${pageObject.value.langKey}.user`),
+                    dataIndex: "user_id",
+                    sorter:true,
+                    sorter_field:"orders.user_id"
+                });
+            }
         }
 
         columns.value = [

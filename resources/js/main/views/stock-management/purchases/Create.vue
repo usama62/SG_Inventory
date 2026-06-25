@@ -111,7 +111,7 @@
                             </span>
                         </a-form-item>
                     </a-col>
-                    <a-col v-else :xs="24" :sm="24" :md="8" :lg="8">
+                    <a-col v-else-if="orderPageObject.type != 'purchase-orders'" :xs="24" :sm="24" :md="8" :lg="8">
                         <UserSearch
                             :orderPageObject="orderPageObject"
                             :rules="rules"
@@ -181,6 +181,12 @@
                         </a-form-item>
                     </a-col>
                 </a-row>
+
+                <PurchaseOrderPartyFields
+                    v-if="orderPageObject.type == 'purchase-orders'"
+                    :formData="formData"
+                />
+
                 <a-row :gutter="16">
                     <a-col :xs="24" :sm="24" :md="24" :lg="24">
                         <a-form-item
@@ -355,6 +361,7 @@
                                     />
                                 </a-form-item>
                             </a-col>
+                            <template v-if="orderPageObject.type != 'purchase-orders'">
                             <a-col :xs="24" :sm="24" :md="12" :lg="12">
                                 <a-form-item :label="'COUNTRY OF ORIGIN OF GOODS'" name="country_of_origin_of_goods">
                                     <a-input v-model:value="formData.country_of_origin_of_goods" :placeholder="'Enter country'" />
@@ -420,11 +427,12 @@
                                     <a-input v-model:value="formData.branch" :placeholder="'Enter branch'" />
                                 </a-form-item>
                             </a-col>
+                            </template>
                         </a-row>
                     </a-col>
 
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
-                        <a-row :gutter="16" v-if="orderPageObject.type != 'quotations'">
+                        <a-row :gutter="16" v-if="orderPageObject.type != 'quotations' && orderPageObject.type != 'purchase-orders'">
                             <a-col :xs="24" :sm="24" :md="24" :lg="24">
                                 <a-form-item
                                     :label="$t('stock.status')"
@@ -968,6 +976,7 @@ import DateTimePicker from "../../../../common/components/common/calendar/DateTi
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import UserSearch from "./UserSearch.vue";
 import FormItemHeading from "../../../../common/components/common/typography/FormItemHeading.vue";
+import PurchaseOrderPartyFields from "./PurchaseOrderPartyFields.vue";
 import { some, forEach, find } from "lodash-es";
 import PaymentModeAddButton from "../payments/AddButton.vue";
 
@@ -991,6 +1000,7 @@ export default {
         MinusSquareOutlined,
         FormItemHeading,
         PaymentModeAddButton,
+        PurchaseOrderPartyFields,
     },
     setup() {
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
@@ -1092,6 +1102,8 @@ export default {
             } else if (orderType.value == "purchase-returns") {
                 allOrderStatus.value = purchaseReturnStatus;
             } else if (orderType.value == "quotations") {
+                allOrderStatus.value = [];
+            } else if (orderType.value == "purchase-orders") {
                 allOrderStatus.value = [];
             } else if (orderType.value == "stock-transfers") {
                 allOrderStatus.value = salesOrderStatus;

@@ -115,7 +115,7 @@
                         </span>
                     </a-form-item>
                 </a-col>
-                <a-col v-else :xs="24" :sm="24" :md="8" :lg="8">
+                <a-col v-else-if="orderPageObject.type != 'purchase-orders'" :xs="24" :sm="24" :md="8" :lg="8">
                     <UserSearch
                         :orderPageObject="orderPageObject"
                         :rules="rules"
@@ -186,6 +186,13 @@
                     </a-form-item>
                 </a-col>
             </a-row>
+
+            <PurchaseOrderPartyFields
+                v-if="orderPageObject.type == 'purchase-orders'"
+                :formData="formData"
+                :disabled="editOrderDisable"
+            />
+
             <a-row :gutter="16">
                 <a-col :xs="24" :sm="24" :md="24" :lg="24">
                     <a-form-item
@@ -360,7 +367,7 @@
                             </a-form-item>
                         </a-col>
                     </a-row>
-                    <a-row :gutter="16">
+                    <a-row :gutter="16" v-if="orderPageObject.type != 'purchase-orders'">
                         <a-col :xs="24" :sm="24" :md="12" :lg="12">
                             <a-form-item
                                 :label="'COUNTRY OF ORIGIN OF GOODS'"
@@ -476,7 +483,7 @@
                     </a-row>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="8" :lg="8">
-                    <a-row :gutter="16" v-if="orderPageObject.type != 'quotations'">
+                    <a-row :gutter="16" v-if="orderPageObject.type != 'quotations' && orderPageObject.type != 'purchase-orders'">
                         <a-col :xs="24" :sm="24" :md="24" :lg="24">
                             <a-form-item
                                 :label="$t('stock.status')"
@@ -814,6 +821,7 @@ import ProductAddButton from "../../product-manager/products/AddButton.vue";
 import DateTimePicker from "../../../../common/components/common/calendar/DateTimePicker.vue";
 import AdminPageHeader from "../../../../common/layouts/AdminPageHeader.vue";
 import UserSearch from "./UserSearch.vue";
+import PurchaseOrderPartyFields from "./PurchaseOrderPartyFields.vue";
 
 export default {
     components: {
@@ -832,6 +840,7 @@ export default {
         DateTimePicker,
         AdminPageHeader,
         UserSearch,
+        PurchaseOrderPartyFields,
     },
     setup() {
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
@@ -928,6 +937,13 @@ export default {
                     iban_no: ord.iban_no ?? "",
                     swift_code: ord.swift_code ?? "",
                     branch: ord.branch ?? "",
+                    supplier_company_name: ord.supplier_company_name ?? "",
+                    supplier_address: ord.supplier_address ?? "",
+                    supplier_phone: ord.supplier_phone ?? "",
+                    ship_to_name: ord.ship_to_name ?? "",
+                    ship_to_company_name: ord.ship_to_company_name ?? "",
+                    ship_to_address: ord.ship_to_address ?? "",
+                    ship_to_phone: ord.ship_to_phone ?? "",
                     order_status: ord.order_status,
                     tax_id: ord.x_tax_id,
                     tax_rate: ord.tax_rate,
@@ -959,6 +975,8 @@ export default {
             } else if (orderType.value == "purchase-returns") {
                 allOrderStatus.value = purchaseReturnStatus;
             } else if (orderType.value == "quotations") {
+                allOrderStatus.value = [];
+            } else if (orderType.value == "purchase-orders") {
                 allOrderStatus.value = [];
             } else if (orderType.value == "stock-transfers") {
                 allOrderStatus.value = salesOrderStatus;

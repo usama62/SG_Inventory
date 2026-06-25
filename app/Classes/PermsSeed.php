@@ -532,6 +532,24 @@ class PermsSeed
             'display_name' => 'Quotation Delete'
         ],
 
+        // Purchase Order
+        'purchase_orders_view' => [
+            'name' => 'purchase_orders_view',
+            'display_name' => 'Purchase Order View'
+        ],
+        'purchase_orders_create' => [
+            'name' => 'purchase_orders_create',
+            'display_name' => 'Purchase Order Create'
+        ],
+        'purchase_orders_edit' => [
+            'name' => 'purchase_orders_edit',
+            'display_name' => 'Purchase Order Edit'
+        ],
+        'purchase_orders_delete' => [
+            'name' => 'purchase_orders_delete',
+            'display_name' => 'Purchase Order Delete'
+        ],
+
         // Expense Category
         'expense_categories_view' => [
             'name' => 'expense_categories_view',

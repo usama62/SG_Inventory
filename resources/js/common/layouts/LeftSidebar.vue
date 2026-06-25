@@ -335,6 +335,7 @@
                         key="purchases"
                         v-if="
                             permsArray.includes('purchases_view') ||
+                            permsArray.includes('purchase_orders_view') ||
                             permsArray.includes('purchase_returns_view') ||
                             permsArray.includes('payment_out_view') ||
                             permsArray.includes('admin')
@@ -362,6 +363,24 @@
                             "
                         >
                             {{ $t("menu.purchases") }}
+                        </a-menu-item>
+                        <a-menu-item
+                            @click="
+                                () => {
+                                    menuSelected();
+                                    $router.push({
+                                        name: 'admin.stock.purchase-orders.index',
+                                    });
+                                }
+                            "
+                            key="purchase_orders"
+                            v-if="
+                                (permsArray.includes('purchase_orders_view') ||
+                                    permsArray.includes('admin')) &&
+                                willSubscriptionModuleVisible('purchase_order')
+                            "
+                        >
+                            {{ $t("menu.purchase_orders") }}
                         </a-menu-item>
                         <a-menu-item
                             @click="

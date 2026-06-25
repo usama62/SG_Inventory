@@ -120,6 +120,7 @@ ApiRoute::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         ApiRoute::resource('custom-fields', 'CustomFieldController', $options);
         ApiRoute::resource('stock-adjustments', 'StockAdjustmentController', $options);
         ApiRoute::resource('purchases', 'PurchaseController', $options);
+        ApiRoute::resource('purchase-orders', 'PurchaseOrderController', $options);
         ApiRoute::resource('purchase-returns', 'PurchaseReturnsController', $options);
         ApiRoute::resource('stock-transfers', 'StockTransferController', $options);
         ApiRoute::resource('sales', 'SalesController', $options);

@@ -149,11 +149,23 @@ trait OrderTraits
         $order->order_type = $this->orderType;
         $order->warehouse_id = $this->orderType == 'stock-transfers' ? $request->warehouse_id : $warehouse->id;
         $order->from_warehouse_id = $this->orderType == 'stock-transfers' ? $warehouse->id : null;
-        $order->user_id = $this->orderType == 'stock-transfers' ? null : $request->user_id;
+        $order->user_id = $this->orderType == 'stock-transfers' || $this->orderType == 'purchase-orders'
+            ? null
+            : $request->user_id;
 
-        if ($this->orderType == "quotations") {
+        if (in_array($this->orderType, ['quotations', 'purchase-orders'])) {
             $order->order_status = "pending";
         }
+
+        if ($this->orderType === 'purchase-orders') {
+            $order->supplier_company_name = $request->supplier_company_name;
+            $order->supplier_address = $request->supplier_address;
+            $order->supplier_phone = $request->supplier_phone;
+            $order->ship_to_name = $request->ship_to_name;
+            $order->ship_to_company_name = $request->ship_to_company_name;
+            $order->ship_to_address = $request->ship_to_address;
+            $order->ship_to_phone = $request->ship_to_phone;
+        } else {
          // 🟩 Add your new fields here:
     $order->country_of_origin_of_goods = $request->country_of_origin_of_goods;
     $order->final_destination = $request->final_destination;
@@ -169,6 +181,7 @@ trait OrderTraits
     $order->branch = $request->branch;
     // dd( $order->user_id);
     
+    if ($this->orderType !== 'purchase-orders' && $order->user_id) {
     $updated = \DB::table('users')
     ->where('id', $order->user_id)
     ->update([
@@ -188,11 +201,13 @@ trait OrderTraits
         \DB::commit();
    
         
-    if ($updated) {
+    if (isset($updated) && $updated) {
         \Log::info('✅ Users table updated successfully for user ID 2');
-    } else {
+    } elseif (isset($updated)) {
         \Log::warning('⚠️ No rows updated in users table for user ID 2');
     }
+    }
+        }
 
         return $order;
     }

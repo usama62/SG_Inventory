@@ -256,6 +256,7 @@ class CreateCompanyIdColumnsInAllTables extends Migration
                 'stock_adjustment',
                 'expense',
                 'quotation',
+                'purchase_order',
             ];
             $defaultPlan->features = [];
             $defaultPlan->save();
@@ -277,6 +278,7 @@ class CreateCompanyIdColumnsInAllTables extends Migration
                 'online_store',
                 'expense',
                 'quotation',
+                'purchase_order',
                 'purchase_return',
                 'sales_return',
                 'reports',

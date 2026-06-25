@@ -286,6 +286,14 @@ const common = () => {
                 userType: "customers",
                 permission: "quotations",
             };
+        } else if (orderType.value == "purchase-orders") {
+            pageObjectDetails = {
+                type: "purchase-orders",
+                langKey: "purchase_order",
+                menuKey: "purchase_orders",
+                userType: "suppliers",
+                permission: "purchase_orders",
+            };
         } else if (orderType.value == "stock-transfers") {
             pageObjectDetails = {
                 type: "stock-transfers",

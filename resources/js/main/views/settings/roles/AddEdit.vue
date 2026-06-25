@@ -649,6 +649,84 @@
 
                                             <tr>
                                                 <td class="text-gray-800">
+                                                    {{ $t("menu.purchase_orders") }}
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <label
+                                                            class="form-check form-check-custom me-5 me-lg-20"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'purchase_orders_view'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{
+                                                                    $t(
+                                                                        "common.view"
+                                                                    )
+                                                                }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                        <label
+                                                            class="form-check form-check-custom me-5 me-lg-20"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'purchase_orders_create'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{
+                                                                    $t(
+                                                                        "common.add"
+                                                                    )
+                                                                }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                        <label
+                                                            class="form-check form-check-custom me-5 me-lg-20"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'purchase_orders_edit'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{
+                                                                    $t(
+                                                                        "common.edit"
+                                                                    )
+                                                                }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                        <label
+                                                            class="form-check form-check-custom"
+                                                        >
+                                                            <a-checkbox
+                                                                :value="
+                                                                    permissions[
+                                                                        'purchase_orders_delete'
+                                                                    ]
+                                                                "
+                                                            >
+                                                                {{
+                                                                    $t(
+                                                                        "common.delete"
+                                                                    )
+                                                                }}
+                                                            </a-checkbox>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="text-gray-800">
                                                     {{
                                                         $t(
                                                             "menu.purchase_returns"

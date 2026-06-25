@@ -5,6 +5,14 @@ import { useRoute } from "vue-router";
 import { debounce, find, includes } from "lodash-es";
 import common from "../../../../common/composable/common";
 
+const PO_DEFAULT_SHIP_TO_ADDRESS = `AL fattan plaza
+Office no: 904
+office building Al garhood
+Dubai
+U.A.E`;
+
+const PO_DEFAULT_SHIP_TO_COMPANY = "SHAMS GLOBAL TRADING FZ LLC";
+
 const stockManagement = () => {
     const {
         formatAmount,
@@ -47,6 +55,18 @@ const stockManagement = () => {
         iban_no: '',
         swift_code: '',
         branch: '',
+        supplier_company_name: '',
+        supplier_address: '',
+        supplier_phone: '',
+        ship_to_name: '',
+        ship_to_company_name:
+            orderType.value == "purchase-orders" ? PO_DEFAULT_SHIP_TO_COMPANY : '',
+        ship_to_address:
+            orderType.value == "purchase-orders" ? PO_DEFAULT_SHIP_TO_ADDRESS : '',
+        ship_to_phone:
+            orderType.value == "purchase-orders"
+                ? (appSetting.value?.phone || "+971 56 409 0798")
+                : '',
         order_status: undefined,
         tax_id: undefined,
         tax_rate: 0,

@@ -204,6 +204,7 @@ export default {
                 if (
                     newVal == "purchases" ||
                     newVal == "purchase-returns" ||
+                    newVal == "purchase-orders" ||
                     newVal == "sales" ||
                     newVal == "sales-returns" ||
                     newVal == "quotations"

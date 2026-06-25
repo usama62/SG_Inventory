@@ -640,7 +640,9 @@ class Common
                 }
 
                 if ($orderType != "stock-transfers") {
-                    $orderItem->user_id = self::getHashFromId($order->user_id);
+                    $orderItem->user_id = $order->user_id
+                        ? self::getHashFromId($order->user_id)
+                        : null;
                 }
                 $orderItem->order_id = $order->xid;
                 $orderItem->product_id = $productItem->xid;
@@ -693,7 +695,7 @@ class Common
                 $totalQuantities += $orderItem->quantity;
 
                 // Tracking Stock History
-                if ($stockHistoryQuantity != 0 && $orderType != 'quotations') {
+                if ($stockHistoryQuantity != 0 && !in_array($orderType, ['quotations', 'purchase-orders'])) {
                     $stockHistory = new StockHistory();
                     $stockHistory->warehouse_id = $order->warehouse_id;
                     $stockHistory->product_id = $orderItem->product_id;
@@ -756,6 +758,7 @@ class Common
             'payment-in' => 'PAY-IN-',
             'payment-out' => 'PAY-OUT-',
             'quotations' => 'QUOT-',
+            'purchase-orders' => 'PO-',
             'sales' => 'SALE-',
             'purchases' => 'PUR-',
             'purchase-returns' => 'PUR-RET-',

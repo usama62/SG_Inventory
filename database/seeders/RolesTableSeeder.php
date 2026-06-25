@@ -62,6 +62,7 @@ class RolesTableSeeder extends Seeder
 
 		$stockManagerPermissions = Permission::whereIn('name', [
 			'purchases_view', 'purchases_create', 'purchases_edit',
+			'purchase_orders_view', 'purchase_orders_create', 'purchase_orders_edit',
 			'purchase_returns_view', 'purchase_returns_create', 'purchase_returns_edit',
 			'order_payments_view', 'order_payments_create',
 			'payment_out_view', 'payment_out_create', 'payment_out_edit',

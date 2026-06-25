@@ -191,6 +191,26 @@ class NotificationSeed
             'other_data' => []
         ],
 
+        // Purchase Orders
+        'purchase_orders_create' => [
+            'type' => "email_templates",
+            'title' => "Purchase order created",
+            'content' => "A new purchase order added by ##staff_member_name## in your warehouse ##warehouse_name## with invoice number ##invoice_number##.",
+            'other_data' => []
+        ],
+        'purchase_orders_update' => [
+            'type' => "email_templates",
+            'title' => "Purchase order updated",
+            'content' => "Purchase order with invoice number ##invoice_number## updated by ##staff_member_name## in your warehouse ##warehouse_name##.",
+            'other_data' => []
+        ],
+        'purchase_orders_delete' => [
+            'type' => "email_templates",
+            'title' => "Purchase order deleted",
+            'content' => "Purchase order with invoice number ##invoice_number## deleted by ##staff_member_name## from your warehouse ##warehouse_name##.",
+            'other_data' => []
+        ],
+
         // Expenses
         'expense_create' => [
             'type' => "email_templates",
