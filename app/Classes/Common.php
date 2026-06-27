@@ -414,6 +414,28 @@ class Common
         return null;
     }
 
+    /**
+     * Data-URI company stamp for DomPDF (avoids HTTP fetch of asset() URLs which can hang the request).
+     */
+    public static function getCompanyStampDataUri(?Company $company = null): ?string
+    {
+        $candidates = [
+            public_path('images/stamp.png'),
+            public_path('uploads/stamp.png'),
+            public_path('uploads/companies/stamp.png'),
+        ];
+
+        foreach ($candidates as $path) {
+            if (is_readable($path)) {
+                $mime = @mime_content_type($path) ?: 'image/png';
+
+                return 'data:' . $mime . ';base64,' . base64_encode((string) file_get_contents($path));
+            }
+        }
+
+        return null;
+    }
+
     public static function generateOrderUniqueId()
     {
         return Str::random(20);

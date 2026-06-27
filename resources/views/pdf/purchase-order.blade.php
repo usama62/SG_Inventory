@@ -126,14 +126,13 @@
             vertical-align: top;
         }
 
-        .doc-footer {
-            margin-top: 14px;
+        .doc-footer td {
             padding-top: 10px;
-            border-top: 3px double #888;
-            text-align: center;
             font-size: 9.5px;
             color: #515650;
             line-height: 1.5;
+            text-align: center;
+            border: none;
         }
     </style>
 </head>
@@ -176,6 +175,7 @@
     $contactName = optional($staffMember)->name ?? '—';
     $contactEmail = $company->email ?? 'sufiyanjetham@shamsglobalfzllc.ae';
     $logoSrc = $receipt_logo_src ?? null;
+    $stampSrc = $stamp_src ?? null;
 
     $footerLine1 = 'Mob: ' . $companyPhone . ', ' . $companyName . ', ' . str_replace(["\r\n", "\r", "\n"], ', ', $companyAddress);
     $footerLine2 = 'Email: ' . $contactEmail . ' | Website: ' . $companyWebsite;
@@ -191,9 +191,9 @@
                 <tr>
                     <td style="padding-bottom:10px;">
                         @if(!empty($logoSrc))
-                            <img src="{{ $logoSrc }}" alt="Logo" width="100%" style="max-width:100%;">
+                            <img src="{{ $logoSrc }}" alt="Logo" style="width:100%;max-height:90px;height:auto;display:block;">
                         @else
-                            <img src="http://72.61.173.29/uploads/companies/company_uu4qzlfzgwfhqvi9ty5z.jpg" alt="Logo" width="100%" style="max-width:100%;">
+                            <img src="http://72.61.173.29/uploads/companies/company_uu4qzlfzgwfhqvi9ty5z.jpg" alt="Logo" style="width:100%;max-height:90px;height:auto;display:block;">
                         @endif
                     </td>
                 </tr>
@@ -281,11 +281,9 @@
                     @forelse($items as $item)
                         @php
                             $qty = (float) ($item->quantity ?? 0);
-                            $rateUsd = (float) ($item->unit_price ?? 0);
-                            $rateAed = (float) ($item->total_tax ?? 0);
-                            if ($rateAed <= 0 && $rateUsd > 0) {
-                                $rateAed = $rateUsd * $usdRate;
-                            }
+                            // PO prices are entered in AED; derive USD rate from AED
+                            $rateAed = (float) ($item->single_unit_price ?? $item->unit_price ?? 0);
+                            $rateUsd = $usdRate > 0 ? round($rateAed / $usdRate, 2) : 0;
                             $lineTotalAed = (float) ($item->subtotal ?? 0);
                             if ($lineTotalAed <= 0 && $qty > 0 && $rateAed > 0) {
                                 $lineTotalAed = $qty * $rateAed;
@@ -331,6 +329,15 @@
                             <tr><td class="bar">Comments or Special Instructions</td></tr>
                             <tr><td class="comments-body">{{ $comments }}</td></tr>
                         </table>
+                        @if(!empty($stampSrc))
+                            <table width="100%" cellspacing="0" cellpadding="0" style="margin-top:8px;">
+                                <tr>
+                                    <td align="left" style="padding:8px 0 0 8px; border:none;">
+                                        <img src="{{ $stampSrc }}" width="90" height="90" style="width:90px;height:90px;" alt="Company Stamp">
+                                    </td>
+                                </tr>
+                            </table>
+                        @endif
                     </td>
                     <td width="42%" valign="top">
                         <table width="100%" cellspacing="0" cellpadding="0" class="totals">
@@ -359,11 +366,15 @@
                 </tr>
             </table>
 
-            <div class="doc-footer">
-                <p>If you have any questions about this purchase order, please contact {{ $contactName }}, {{ $companyPhone }}, {{ $contactEmail }}</p>
-                <p>{{ $footerLine1 }}</p>
-                <p>{{ $footerLine2 }}</p>
-            </div>
+            <table width="100%" cellspacing="0" cellpadding="0" style="margin-top:12px; border-top:3px double #888;" class="doc-footer">
+                <tr>
+                    <td>
+                        If you have any questions about this purchase order, please contact {{ $contactName }}, {{ $companyPhone }}, {{ $contactEmail }}<br><br>
+                        {{ $footerLine1 }}<br>
+                        {{ $footerLine2 }}
+                    </td>
+                </tr>
+            </table>
 
         </td>
     </tr>

@@ -263,7 +263,19 @@ class AuthController extends ApiBaseController
                 ?? abort(404, 'Company not found');
 
         if ($order->order_type === 'purchase-orders') {
-            return $this->downloadPurchaseOrderPdf($order, $company);
+            $pdfData = [
+                'order' => $order,
+                'company' => $company,
+                'warehouse' => $warehouse,
+                'staffMember' => $staffMember,
+                'customer' => $customer,
+                'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
+                'stamp_src' => Common::getCompanyStampDataUri($company),
+            ];
+
+            $pdf = PDF::loadView('pdf.receipt', $pdfData);
+
+            return $pdf->download('receipt-' . $order->unique_id . '.pdf');
         }
 
         $pdfData = [
@@ -277,6 +289,7 @@ class AuthController extends ApiBaseController
             'staffMember' => $staffMember,
             'customer' => $customer,
             'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
+            'stamp_src' => Common::getCompanyStampDataUri($company),
         ];
 
         $pdf = PDF::loadView('pdf.receipt', $pdfData);
@@ -305,6 +318,7 @@ class AuthController extends ApiBaseController
             'supplier' => $supplier,
             'customer' => $customer,
             'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
+            'stamp_src' => Common::getCompanyStampDataUri($company),
         ];
 
         $pdf = PDF::loadView('pdf.purchase-order', $pdfData);

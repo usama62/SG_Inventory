@@ -11,28 +11,24 @@
             font-weight: bold;
             font-style: normal;
         }
-        /* DomPDF: avoid display:flex on body (can hang); keep layout same visually */
+        /* DomPDF: avoid display:flex and position:absolute (can create blank pages) */
         body {
             font-family: 'ARIALNB', Arial, sans-serif;
             margin: 0;
-            text-align: center;
+            padding: 0;
         }
         .container {
-            display: inline-block;
             width: 100%;
-            /* height: 11.69in; */
             padding: 10px;
             box-sizing: border-box;
-            /* border: 1px solid #ccc; */
-            position: relative;
             text-align: left;
-            vertical-align: top;
         }
         header {
             margin-bottom: 20px;
         }
         header img {
             width: 100%;
+            max-height: 90px;
             height: auto;
             display: block;
         }
@@ -112,20 +108,21 @@
         }
         footer {
             width: 100%;
-            margin: 0 auto;
+            margin-top: 16px;
             border-top: 4px double #2d2d2d;
             padding-top: 10px;
             text-align: center;
-            font-size: 16px;
-            position: absolute;
-            bottom: 0;
-            /* left: 10%;
-            right: 10%; */
+            font-size: 14px;
             color: #515650;
         }
         footer p {
             margin: 0 0 5px 0;
             line-height: 1.4;
+        }
+        .received-by-inner td {
+            border: none;
+            padding: 0;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -194,6 +191,7 @@
     $footerWebsite = $company->website ?: 'https://shamsglobalfzllc.ae';
     $footerLine2 = 'Email: ' . ($company->email ?: 'sufiyanjetham@shamsglobalfzllc.ae')
         . ' Website: ' . $footerWebsite;
+    $stampSrc = $stamp_src ?? null;
 @endphp
 <body>
     <div class="container">
@@ -232,9 +230,20 @@
             </tr>
             <tr>
                 <td colspan="2" class="received-by-cell">
-                    <strong>RECEIVED BY:</strong><br>
-                    {{ $receivedByName }}<br>
-                    {{ $receivedByCompany }}
+                    <table width="100%" cellspacing="0" cellpadding="0" class="received-by-inner">
+                        <tr>
+                            <td valign="top" style="width:60%; text-align:left;">
+                                <strong>RECEIVED BY:</strong><br>
+                                {{ $receivedByName }}<br>
+                                {{ $receivedByCompany }}
+                            </td>
+                            @if(!empty($stampSrc))
+                                <td valign="bottom" align="right" style="width:40%;">
+                                    <img src="{{ $stampSrc }}" width="90" height="90" style="width:90px;height:90px;" alt="Company Stamp">
+                                </td>
+                            @endif
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>
