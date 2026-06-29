@@ -54,6 +54,9 @@ class UpdateRequest extends FormRequest
         if($this->product_type == 'single') {
             $rules['purchase_price'] = 'required|gt:0';
             $rules['sales_price'] = 'required||gt:0|gte:purchase_price';
+            $rules['purchase_price_currency'] = 'nullable|in:USD,AED,INR';
+            $rules['sales_price_currency'] = 'nullable|in:USD,AED,INR';
+            $rules['mrp_currency'] = 'nullable|in:USD,AED,INR';
         }
 
         // If purchase or sales includes tax

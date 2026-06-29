@@ -31,7 +31,10 @@ class CheckVariantRequest extends FormRequest
 		$rules = [
 			'purchase_price'    => 'required|gt:0',
 			'sales_price'    => 'required||gt:0|gte:purchase_price',
-            'opening_stock'    => 'required'
+            'opening_stock'    => 'required',
+            'purchase_price_currency' => 'nullable|in:USD,AED,INR',
+            'sales_price_currency' => 'nullable|in:USD,AED,INR',
+            'mrp_currency' => 'nullable|in:USD,AED,INR',
 		];
 
         if($this->xid != '') {

@@ -205,7 +205,9 @@ function numberToWords($num)
     $invoiceDate = $order->order_date ? \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') : '';
     $invoiceNoAndDate = trim($invoiceNo . ($invoiceDate ? ' / ' . $invoiceDate : ''));
 
-    $contactNo = optional($warehouse)->address ?? '';
+    $contactNo = optional($warehouse)->phone
+        ?? optional($company)->phone
+        ?? '+971 56 409 0798';
     $termsOfDelivery = optional($customer)->terms_of_delivery ?? ($order->terms_of_delivery ?? '');
 
     $buyer = optional($customer)->name ?? ($order->buyer_name ?? '');
@@ -268,14 +270,23 @@ function numberToWords($num)
         <td>AMOUNT IN AED</td>
       </tr>
       @foreach($order->items as $item)
+        @php
+          $qty = (float) ($item->quantity ?? 0);
+          $rateAed = (float) ($item->single_unit_price ?? $item->unit_price ?? 0);
+          $rateUsd = $usdRate > 0 ? round($rateAed / $usdRate, 2) : 0;
+          $lineTotalAed = (float) ($item->subtotal ?? 0);
+          if ($lineTotalAed <= 0 && $qty > 0 && $rateAed > 0) {
+              $lineTotalAed = $qty * $rateAed;
+          }
+        @endphp
         <tr>
           <td>{{ $customer->marks_and_nos ?? '' }}</td>
           <td class="desc">{{ $item->product->name ?? '' }}</td>
           <td>{{ $item->unit->name ?? '' }}</td>
-          <td>{{ number_format($item->quantity, 2) }}</td>
-          <td>{{ number_format($item->unit_price, 2) }}</td>
-          <td>{{ number_format($item->total_tax, 2) }}</td>
-          <td>{{ number_format($item->subtotal + $item->total_tax, 2) }}</td>
+          <td>{{ number_format($qty, 2) }}</td>
+          <td>{{ number_format($rateUsd, 2) }}</td>
+          <td>{{ number_format($rateAed, 2) }}</td>
+          <td>{{ number_format($lineTotalAed, 2) }}</td>
         </tr>
       @endforeach
       <tr class="total-row">
@@ -353,7 +364,6 @@ function numberToWords($num)
   @php
     $defaultCompanyAddress = "AL fattan plaza\nOffice no: 904\noffice building Al garhood\nDubai\nU.A.E";
     $companyAddress = $company->address ?? $defaultCompanyAddress;
-    $companyPhone = $company->phone ?? '+971 56 409 0798';
     $companyName = $company->name ?? 'SHAMS GLOBAL TRADING FZ LLC';
     $footerAddress = str_replace(["\r\n", "\r", "\n"], ', ', $companyAddress);
   @endphp
@@ -361,7 +371,7 @@ function numberToWords($num)
   <!-- Footer -->
   <div class="invoice-footer">
     <p>
-      Mob: {{ $companyPhone }}, {{ $companyName }}, {{ $footerAddress }}
+      Mob: {{ $contactNo }}, {{ $companyName }}, {{ $footerAddress }}
     </p>
   </div>
 

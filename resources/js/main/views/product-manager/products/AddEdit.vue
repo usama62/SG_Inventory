@@ -490,7 +490,18 @@
                             style="width: 100%"
                         >
                             <template #addonBefore>
-                                {{ appSetting.currency.symbol }}
+                                <a-select
+                                    v-model:value="formData.purchase_price_currency"
+                                    style="width: 78px"
+                                >
+                                    <a-select-option
+                                        v-for="currency in productPriceCurrencies"
+                                        :key="currency"
+                                        :value="currency"
+                                    >
+                                        {{ currency }}
+                                    </a-select-option>
+                                </a-select>
                             </template>
                             <template #addonAfter>
                                 <a-select
@@ -536,7 +547,18 @@
                             style="width: 100%"
                         >
                             <template #addonBefore>
-                                {{ appSetting.currency.symbol }}
+                                <a-select
+                                    v-model:value="formData.sales_price_currency"
+                                    style="width: 78px"
+                                >
+                                    <a-select-option
+                                        v-for="currency in productPriceCurrencies"
+                                        :key="currency"
+                                        :value="currency"
+                                    >
+                                        {{ currency }}
+                                    </a-select-option>
+                                </a-select>
                             </template>
                             <template #addonAfter>
                                 <a-select
@@ -576,7 +598,18 @@
                             style="width: 100%"
                         >
                             <template #addonBefore>
-                                {{ appSetting.currency.symbol }}
+                                <a-select
+                                    v-model:value="formData.mrp_currency"
+                                    style="width: 78px"
+                                >
+                                    <a-select-option
+                                        v-for="currency in productPriceCurrencies"
+                                        :key="currency"
+                                        :value="currency"
+                                    >
+                                        {{ currency }}
+                                    </a-select-option>
+                                </a-select>
                             </template>
                         </a-input-number>
                     </a-form-item>
@@ -750,6 +783,7 @@ import TaxAddButton from "../../settings/taxes/AddButton.vue";
 import WarehouseAddButton from "../../settings/warehouses/AddButton.vue";
 import AddEditVariant from "./AddEditVariant.vue";
 import BarCodeScan from "./BarCodeScan.vue";
+import { productPriceCurrencies } from "./fields";
 
 export default defineComponent({
     props: [
@@ -956,9 +990,12 @@ export default defineComponent({
             variationFields.value.push({
                 item_code: "",
                 purchase_price: "",
+                purchase_price_currency: "AED",
                 sales_price: "",
+                sales_price_currency: "AED",
                 value: option.name,
                 mrp: "",
+                mrp_currency: "AED",
                 opening_stock: "",
                 purchase_tax_type: "exclusive",
                 sales_tax_type: "exclusive",
@@ -1092,6 +1129,7 @@ export default defineComponent({
             variations,
             variableTypeTable,
             storeScanCode,
+            productPriceCurrencies,
         };
     },
 });

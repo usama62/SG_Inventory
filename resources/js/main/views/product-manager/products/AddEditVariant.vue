@@ -222,7 +222,18 @@
                                     style="width: 100%"
                                 >
                                     <template #addonBefore>
-                                        {{ appSetting.currency.symbol }}
+                                        <a-select
+                                            v-model:value="addEditForm.mrp_currency"
+                                            style="width: 78px"
+                                        >
+                                            <a-select-option
+                                                v-for="currency in productPriceCurrencies"
+                                                :key="currency"
+                                                :value="currency"
+                                            >
+                                                {{ currency }}
+                                            </a-select-option>
+                                        </a-select>
                                     </template>
                                 </a-input-number>
                             </a-form-item>
@@ -278,7 +289,18 @@
                             style="width: 100%"
                         >
                             <template #addonBefore>
-                                {{ appSetting.currency.symbol }}
+                                <a-select
+                                    v-model:value="addEditForm.purchase_price_currency"
+                                    style="width: 78px"
+                                >
+                                    <a-select-option
+                                        v-for="currency in productPriceCurrencies"
+                                        :key="currency"
+                                        :value="currency"
+                                    >
+                                        {{ currency }}
+                                    </a-select-option>
+                                </a-select>
                             </template>
                             <template #addonAfter>
                                 <a-select
@@ -315,7 +337,18 @@
                             style="width: 100%"
                         >
                             <template #addonBefore>
-                                {{ appSetting.currency.symbol }}
+                                <a-select
+                                    v-model:value="addEditForm.sales_price_currency"
+                                    style="width: 78px"
+                                >
+                                    <a-select-option
+                                        v-for="currency in productPriceCurrencies"
+                                        :key="currency"
+                                        :value="currency"
+                                    >
+                                        {{ currency }}
+                                    </a-select-option>
+                                </a-select>
                             </template>
                             <template #addonAfter>
                                 <a-select
@@ -399,6 +432,7 @@ import apiAdmin from "../../../../common/composable/apiAdmin";
 import Upload from "../../../../common/core/ui/file/Upload.vue";
 import Barcode from "./Barcode.vue";
 import InputLabelPopover from "../../../../common/components/common/typography/InputLabelPopover.vue";
+import { productPriceCurrencies } from "./fields";
 
 export default defineComponent({
     props: ["formData", "variations", "selectedUnit", "showTable"],
@@ -500,10 +534,15 @@ export default defineComponent({
                     item_code: variableTableDataArr.item_code,
                     tax_id: variableTableDataArr.details.x_tax_id,
                     purchase_price: variableTableDataArr.details.purchase_price,
+                    purchase_price_currency:
+                        variableTableDataArr.details.purchase_price_currency ?? "AED",
                     purchase_tax_type: variableTableDataArr.details.purchase_tax_type,
                     sales_price: variableTableDataArr.details.sales_price,
+                    sales_price_currency:
+                        variableTableDataArr.details.sales_price_currency ?? "AED",
                     sales_tax_type: variableTableDataArr.details.sales_tax_type,
                     mrp: variableTableDataArr.details.mrp,
+                    mrp_currency: variableTableDataArr.details.mrp_currency ?? "AED",
                     opening_stock: variableTableDataArr.details.opening_stock,
                     opening_stock_date: variableTableDataArr.details.opening_stock_date,
                     stock_quantitiy_alert:
@@ -588,10 +627,13 @@ export default defineComponent({
                 xid: "",
                 item_code: "",
                 purchase_price: "",
+                purchase_price_currency: "AED",
                 purchase_tax_type: "exclusive",
                 sales_price: "",
+                sales_price_currency: "AED",
                 sales_tax_type: "exclusive",
                 mrp: "",
+                mrp_currency: "AED",
                 opening_stock: 0,
                 tax_id: undefined,
                 opening_stock_date: undefined,
@@ -614,10 +656,13 @@ export default defineComponent({
                 xid: record.xid,
                 item_code: record.item_code,
                 purchase_price: record.purchase_price,
+                purchase_price_currency: record.purchase_price_currency ?? "AED",
                 purchase_tax_type: record.purchase_tax_type,
                 sales_price: record.sales_price,
+                sales_price_currency: record.sales_price_currency ?? "AED",
                 sales_tax_type: record.sales_tax_type,
                 mrp: record.mrp,
+                mrp_currency: record.mrp_currency ?? "AED",
                 opening_stock: record.opening_stock,
                 tax_id: record.tax_id,
                 opening_stock_date: record.opening_stock_date,
@@ -737,6 +782,7 @@ export default defineComponent({
             setDirectVariantTableData,
 
             taxes,
+            productPriceCurrencies,
         };
     },
 });

@@ -148,6 +148,7 @@ class ProductController extends ApiBaseController
                     $productDetails->sales_price = $allVariation['sales_price'];
                     $productDetails->purchase_tax_type = $allVariation['purchase_tax_type'];
                     $productDetails->sales_tax_type = $allVariation['sales_tax_type'];
+                    $this->assignPriceCurrencies($productDetails, $allVariation);
                     $productDetails->stock_quantitiy_alert = isset($allVariation['stock_quantitiy_alert']) ? $allVariation['stock_quantitiy_alert'] : null;
                     // $productDetails->wholesale_price = $request->wholesale_price;
                     // $productDetails->wholesale_quantity = $request->wholesale_quantity;
@@ -178,6 +179,7 @@ class ProductController extends ApiBaseController
                 $productDetails->sales_price = $request->sales_price;
                 $productDetails->purchase_tax_type = $request->purchase_tax_type;
                 $productDetails->sales_tax_type = $request->sales_tax_type;
+                $this->assignPriceCurrencies($productDetails, $request->all());
                 $productDetails->stock_quantitiy_alert = $request->has('stock_quantitiy_alert') && $request->stock_quantitiy_alert != '' ? $request->stock_quantitiy_alert : null;
                 $productDetails->wholesale_price = $request->wholesale_price;
                 $productDetails->wholesale_quantity = $request->wholesale_quantity;
@@ -276,6 +278,7 @@ class ProductController extends ApiBaseController
                         $productDetails->sales_price = $allVariation['sales_price'];
                         $productDetails->purchase_tax_type = $allVariation['purchase_tax_type'];
                         $productDetails->sales_tax_type = $allVariation['sales_tax_type'];
+                        $this->assignPriceCurrencies($productDetails, $allVariation);
                         $productDetails->stock_quantitiy_alert = $request->stock_quantitiy_alert;
                         $productDetails->wholesale_price = $request->wholesale_price;
                         $productDetails->wholesale_quantity = $request->wholesale_quantity;
@@ -326,6 +329,7 @@ class ProductController extends ApiBaseController
                     $currentProductDetails->sales_price = $allVariation['sales_price'];
                     $currentProductDetails->purchase_tax_type = $allVariation['purchase_tax_type'];
                     $currentProductDetails->sales_tax_type = $allVariation['sales_tax_type'];
+                    $this->assignPriceCurrencies($currentProductDetails, $allVariation);
                     $currentProductDetails->stock_quantitiy_alert = isset($allVariation['stock_quantitiy_alert']) ? $allVariation['stock_quantitiy_alert'] : null;;
                     // $currentProductDetails->wholesale_price = $request->wholesale_price;
                     // $currentProductDetails->wholesale_quantity = $request->wholesale_quantity;
@@ -345,6 +349,7 @@ class ProductController extends ApiBaseController
             $currentProductDetails->sales_price = $request->sales_price;
             $currentProductDetails->purchase_tax_type = $request->purchase_tax_type;
             $currentProductDetails->sales_tax_type = $request->sales_tax_type;
+            $this->assignPriceCurrencies($currentProductDetails, $request->all());
             $currentProductDetails->stock_quantitiy_alert = $request->stock_quantitiy_alert;
             $currentProductDetails->wholesale_price = $request->wholesale_price;
             $currentProductDetails->wholesale_quantity = $request->wholesale_quantity;
@@ -512,5 +517,12 @@ class ProductController extends ApiBaseController
     public function checkProductVariant(CheckVariantRequest $request)
     {
         return ApiResponse::make('Added Successfully', []);
+    }
+
+    private function assignPriceCurrencies(ProductDetails $productDetails, array $data): void
+    {
+        $productDetails->purchase_price_currency = $data['purchase_price_currency'] ?? 'AED';
+        $productDetails->sales_price_currency = $data['sales_price_currency'] ?? 'AED';
+        $productDetails->mrp_currency = $data['mrp_currency'] ?? 'AED';
     }
 }

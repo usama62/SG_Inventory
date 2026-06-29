@@ -1,6 +1,9 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
+const productPriceCurrencies = ["USD", "AED", "INR"];
+const defaultProductPriceCurrency = "AED";
+
 const fields = () => {
     const addEditUrl = "products";
     const { t } = useI18n();
@@ -9,7 +12,10 @@ const fields = () => {
         stock_quantitiy_alert: "details.stock_quantitiy_alert",
         mrp: "details.mrp",
         purchase_price: "details.purchase_price",
+        purchase_price_currency: "details.purchase_price_currency",
         sales_price: "details.sales_price",
+        sales_price_currency: "details.sales_price_currency",
+        mrp_currency: "details.mrp_currency",
         tax_id: "details.x_tax_id",
         purchase_tax_type: "details.purchase_tax_type",
         sales_tax_type: "details.sales_tax_type",
@@ -32,7 +38,10 @@ const fields = () => {
         brand_id: undefined,
         mrp: 0,
         purchase_price: 0,
+        purchase_price_currency: defaultProductPriceCurrency,
         sales_price: 0,
+        sales_price_currency: defaultProductPriceCurrency,
+        mrp_currency: defaultProductPriceCurrency,
         tax_id: undefined,
         unit_id: undefined,
         description: "",
@@ -175,7 +184,10 @@ const fields = () => {
         filterableColumns,
         hashableColumns,
         multiDimensalObjectColumns,
+        productPriceCurrencies,
+        defaultProductPriceCurrency,
     };
 };
 
 export default fields;
+export { productPriceCurrencies, defaultProductPriceCurrency };
