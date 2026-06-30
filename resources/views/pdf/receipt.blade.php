@@ -12,14 +12,18 @@
             font-style: normal;
         }
         /* DomPDF: avoid display:flex and position:absolute (can create blank pages) */
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
         body {
             font-family: 'ARIALNB', Arial, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 0 10px 95px 10px;
         }
         .container {
             width: 100%;
-            padding: 10px;
+            padding: 10px 0;
             box-sizing: border-box;
             text-align: left;
         }
@@ -107,16 +111,25 @@
             border-top: none;
         }
         footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             width: 100%;
-            margin-top: 16px;
             border-top: 4px double #2d2d2d;
-            padding-top: 10px;
+            padding: 10px 10px 8px 10px;
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
             color: #515650;
+            background: #fff;
         }
         footer p {
-            margin: 0 0 5px 0;
+            margin: 0 0 4px 0;
+            line-height: 1.35;
+        }
+        footer .footer-address {
+            margin-top: 6px;
+            font-size: 13px;
             line-height: 1.4;
         }
         .received-by-inner td {
@@ -124,74 +137,48 @@
             padding: 0;
             font-size: 14px;
         }
+        .receipt-stamp-cell {
+            border: none;
+            padding: 45px 0 10px 0;
+            vertical-align: top;
+            text-align: left;
+            min-height: 90px;
+        }
+        .receipt-stamp-cell img {
+            width: 90px;
+            height: 90px;
+            margin-left: 70px;
+            margin-top: 30px;
+            display: block;
+        }
     </style>
 </head>
 @php
-    function receiptNumberToWords($num) {
-        $ones = [
-            0 => "", 1 => "One", 2 => "Two", 3 => "Three", 4 => "Four", 5 => "Five",
-            6 => "Six", 7 => "Seven", 8 => "Eight", 9 => "Nine", 10 => "Ten",
-            11 => "Eleven", 12 => "Twelve", 13 => "Thirteen", 14 => "Fourteen",
-            15 => "Fifteen", 16 => "Sixteen", 17 => "Seventeen", 18 => "Eighteen", 19 => "Nineteen"
-        ];
-        $tens = [
-            2 => "Twenty", 3 => "Thirty", 4 => "Forty", 5 => "Fifty",
-            6 => "Sixty", 7 => "Seventy", 8 => "Eighty", 9 => "Ninety"
-        ];
-        if ($num == 0) return "Zero";
-        $num = number_format((float) $num, 2, ".", "");
-        $split = explode(".", $num);
-        $integerPart = (int) $split[0];
-        $words = "";
-        $levels = ["", "Thousand", "Million", "Billion"];
-        $i = 0;
-        while ($integerPart > 0) {
-            $chunk = $integerPart % 1000;
-            if ($chunk) {
-                $chunkWords = "";
-                $hundreds = intval($chunk / 100);
-                $remainder = $chunk % 100;
-                if ($hundreds) {
-                    $chunkWords .= $ones[$hundreds] . " Hundred ";
-                }
-                if ($remainder) {
-                    if ($remainder < 20) {
-                        $chunkWords .= $ones[$remainder] . " ";
-                    } else {
-                        $chunkWords .= $tens[intval($remainder / 10)] . " " . $ones[$remainder % 10] . " ";
-                    }
-                }
-                $words = trim($chunkWords) . " " . $levels[$i] . " " . $words;
-            }
-            $integerPart = intval($integerPart / 1000);
-            $i++;
-        }
-        return trim($words);
-    }
-
-    $currencyCode = $company->currency->code ?? 'AED';
-    $currencyNamePlural = $currencyCode === 'AED'
-        ? 'Dirhams'
-        : (optional($company->currency)->name ?: 'Dirhams');
     $payerName = optional($customer)->name ?? optional($order->user)->name ?? 'N/A';
-    $orderTotal = (float) ($order->total ?? 0);
-    $amountWords = receiptNumberToWords($orderTotal);
-    $amountFigure = $currencyCode . ' ' . number_format($orderTotal, 0, '.', ',');
-    $amountWordsLine = '(' . $amountWords . ' ' . $currencyNamePlural . '.)';
     $paymentAgainst = $order->payment_terms
         ?? ($order->notes !== null && $order->notes !== '' ? $order->notes : '—');
     $receiptDate = \Carbon\Carbon::parse($order->order_date)->format('d-m-Y');
     $receivedByName = optional($staffMember)->name ?? '________________';
     $receivedByCompany = $company->name ?? 'SHAMS GLOBAL TRADING FZ LLC';
 
-    $defaultCompanyAddress = "AL fattan plaza\nOffice no: 904\noffice building Al garhood\nDubai\nU.A.E";
-    $footerCompanyLine = ($company->name ?: 'SHAMS GLOBAL TRADING FZ LLC') . ' , '
-        . ($company->address ?: $defaultCompanyAddress);
-    $footerLine1 = 'Mob: ' . ($company->phone ?: '+971 56 409 0798') . ', ' . $footerCompanyLine;
+    $defaultCompanyAddress = "Al Fattan Plaza, Office no: 904, Al Garhood, Dubai, U.A.E";
+    $companyAddressRaw = $company->address ?: $defaultCompanyAddress;
+    $footerAddress = trim(preg_replace('/\s+/', ' ', str_replace(["\r\n", "\r", "\n"], ', ', $companyAddressRaw)));
+    $footerCompanyName = $company->name ?: 'SHAMS GLOBAL TRADING FZ LLC';
     $footerWebsite = $company->website ?: 'https://shamsglobalfzllc.ae';
-    $footerLine2 = 'Email: ' . ($company->email ?: 'sufiyanjetham@shamsglobalfzllc.ae')
-        . ' Website: ' . $footerWebsite;
+    $footerContactLine = 'Mob: ' . ($company->phone ?: '+97143358029')
+        . ' | Email: ' . ($company->email ?: 'sufiyanjetham@shamsglobalfzllc.ae')
+        . ' | Website: ' . $footerWebsite;
     $stampSrc = $stamp_src ?? null;
+
+    $displayAmountFigure = $amount_figure
+        ?? \App\Classes\Common::formatAmountByCurrencyCode(
+            (float) ($order->total ?? 0),
+            \App\Classes\Common::resolveOrderCurrency($order, $order->order_type ?? 'sales'),
+            0
+        );
+    $displayAmountWordsLine = $amount_words_line
+        ?? (\App\Classes\Common::buildReceiptAmounts($order)['amount_words_line'] ?? '');
 @endphp
 <body>
     <div class="container">
@@ -218,8 +205,8 @@
                     <div class="amount-label">Amount</div>
                 </td>
                 <td style="vertical-align: middle;">
-                    {{ $amountFigure }}<br>
-                    {{ $amountWordsLine }}
+                    {{ $displayAmountFigure }}<br>
+                    {{ $displayAmountWordsLine }}
                 </td>
             </tr>
             <tr>
@@ -232,25 +219,27 @@
                 <td colspan="2" class="received-by-cell">
                     <table width="100%" cellspacing="0" cellpadding="0" class="received-by-inner">
                         <tr>
-                            <td valign="top" style="width:60%; text-align:left;">
+                            <td valign="top" colspan="2" style="text-align:left;">
                                 <strong>RECEIVED BY:</strong><br>
                                 {{ $receivedByName }}<br>
                                 {{ $receivedByCompany }}
                             </td>
-                            @if(!empty($stampSrc))
-                                <td valign="bottom" align="right" style="width:40%;">
-                                    <img src="{{ $stampSrc }}" width="90" height="90" style="width:90px;height:90px;" alt="Company Stamp">
-                                </td>
-                            @endif
                         </tr>
+                        @if(!empty($stampSrc))
+                        <tr>
+                            <td valign="top" align="left" colspan="2" class="receipt-stamp-cell">
+                                <img src="{{ $stampSrc }}" alt="Company Stamp">
+                            </td>
+                        </tr>
+                        @endif
                     </table>
                 </td>
             </tr>
         </table>
 
         <footer>
-            <p>{{ $footerLine1 }}</p>
-            <p>{{ $footerLine2 }}</p>
+            <p>{{ $footerContactLine }}</p>
+            <p class="footer-address"><strong>{{ $footerCompanyName }}</strong><br>{{ $footerAddress }}</p>
         </footer>
     </div>
 </body>

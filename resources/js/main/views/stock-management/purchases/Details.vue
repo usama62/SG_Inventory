@@ -85,21 +85,46 @@
                         <a-descriptions-item
                             :label="$t('payments.total_amount')"
                         >
-                            {{ formatAmountCurrency(selectedItem.total) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    selectedItem.total,
+                                    orderCurrency
+                                )
+                            }}
                         </a-descriptions-item>
                         <a-descriptions-item
                             :label="$t('payments.paid_amount')"
                         >
-                            {{ formatAmountCurrency(selectedItem.paid_amount) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    selectedItem.paid_amount,
+                                    orderCurrency
+                                )
+                            }}
                         </a-descriptions-item>
                         <a-descriptions-item :label="$t('payments.due_amount')">
-                            {{ formatAmountCurrency(selectedItem.due_amount) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    selectedItem.due_amount,
+                                    orderCurrency
+                                )
+                            }}
                         </a-descriptions-item>
                         <a-descriptions-item :label="$t('stock.discount')">
-                            {{ formatAmountCurrency(selectedItem.discount) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    selectedItem.discount,
+                                    orderCurrency
+                                )
+                            }}
                         </a-descriptions-item>
                         <a-descriptions-item :label="$t('stock.shipping')">
-                            {{ formatAmountCurrency(selectedItem.shipping) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    selectedItem.shipping,
+                                    orderCurrency
+                                )
+                            }}
                         </a-descriptions-item>
                         <a-descriptions-item :label="$t('stock.order_tax')">
                             {{
@@ -156,8 +181,9 @@
                                                     "
                                                 >
                                                     {{
-                                                        formatAmountCurrency(
-                                                            record.amount
+                                                        formatAmountByCurrencyCode(
+                                                            record.amount,
+                                                            orderCurrency
                                                         )
                                                     }}
                                                 </template>
@@ -267,8 +293,9 @@
                                                     "
                                                 >
                                                     {{
-                                                        formatAmountCurrency(
-                                                            record.single_unit_price
+                                                        formatAmountByCurrencyCode(
+                                                            record.single_unit_price,
+                                                            record.price_currency
                                                         )
                                                     }}
                                                 </template>
@@ -279,8 +306,9 @@
                                                     "
                                                 >
                                                     {{
-                                                        formatAmountCurrency(
-                                                            record.total_discount
+                                                        formatAmountByCurrencyCode(
+                                                            record.total_discount,
+                                                            record.price_currency
                                                         )
                                                     }}
                                                 </template>
@@ -291,8 +319,9 @@
                                                     "
                                                 >
                                                     {{
-                                                        formatAmountCurrency(
-                                                            record.total_tax
+                                                        formatAmountByCurrencyCode(
+                                                            record.total_tax,
+                                                            record.price_currency
                                                         )
                                                     }}
                                                 </template>
@@ -303,8 +332,9 @@
                                                     "
                                                 >
                                                     {{
-                                                        formatAmountCurrency(
-                                                            record.subtotal
+                                                        formatAmountByCurrencyCode(
+                                                            record.subtotal,
+                                                            record.price_currency
                                                         )
                                                     }}
                                                 </template>
@@ -346,8 +376,9 @@
                                                             strong
                                                         >
                                                             {{
-                                                                formatAmountCurrency(
-                                                                    totals.totalDiscount
+                                                                formatAmountByCurrencyCode(
+                                                                    totals.totalDiscount,
+                                                                    orderCurrency
                                                                 )
                                                             }}
                                                         </a-typography-text>
@@ -359,8 +390,9 @@
                                                             strong
                                                         >
                                                             {{
-                                                                formatAmountCurrency(
-                                                                    totals.totalTax
+                                                                formatAmountByCurrencyCode(
+                                                                    totals.totalTax,
+                                                                    orderCurrency
                                                                 )
                                                             }}
                                                         </a-typography-text>
@@ -372,8 +404,9 @@
                                                             strong
                                                         >
                                                             {{
-                                                                formatAmountCurrency(
-                                                                    totals.totalAmount
+                                                                formatAmountByCurrencyCode(
+                                                                    totals.totalAmount,
+                                                                    orderCurrency
                                                                 )
                                                             }}
                                                         </a-typography-text>
@@ -427,7 +460,7 @@ export default {
             orderPaymentsColumns,
             orderItemDetailsColumns,
         } = fields();
-        const { formatAmountCurrency, permsArray, formatDate, formatDateTime } =
+        const { formatAmountCurrency, formatAmountByCurrencyCode, getOrderCurrency, permsArray, formatDate, formatDateTime } =
             common();
         const { t } = useI18n();
         const datatableVariables = datatable();
@@ -497,6 +530,10 @@ export default {
             editItemAmount.value = 0;
         };
 
+        const orderCurrency = computed(() =>
+            getOrderCurrency(props.selectedItem)
+        );
+
         const totals = computed(() => {
             let totalAmount = 0;
             let totalTax = 0;
@@ -522,6 +559,8 @@ export default {
             formatDate,
             formatDateTime,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
+            orderCurrency,
             orderPaymentsColumns,
             orderItemDetailsColumns,
             activeKey,

@@ -148,7 +148,7 @@
     $companyName = $company->name ?? 'SHAMS GLOBAL TRADING FZ LLC';
     $defaultCompanyAddress = "AL fattan plaza\nOffice no: 904\noffice building Al garhood\nDubai\nU.A.E";
     $companyAddress = $company->address ?? $defaultCompanyAddress;
-    $companyPhone = $company->phone ?? '+971 56 409 0798';
+    $companyPhone = $company->phone ?? '+97143358029';
     $companyWebsite = $company->website ?? 'https://shamsglobalfzllc.ae';
 
     $supplierName = $order->supplier_company_name ?? optional($supplier)->name ?? optional($customer)->name ?? '—';
@@ -168,6 +168,9 @@
     $shipping = (float) ($order->shipping ?? 0);
     $other = (float) ($order->other_charges ?? 0);
     $grandTotal = (float) ($order->total ?? ($subtotal + $tax + $shipping + $other));
+
+    $orderCurrency = \App\Classes\Common::resolveOrderCurrency($order, 'purchase-orders');
+    $formatOrderAmount = fn (float $amount) => \App\Classes\Common::formatAmountByCurrencyCode($amount, $orderCurrency);
 
     $items = $order->items ?? collect();
     $blankRows = max(0, 5 - $items->count());
@@ -281,13 +284,15 @@
                     @forelse($items as $item)
                         @php
                             $qty = (float) ($item->quantity ?? 0);
-                            // PO prices are entered in AED; derive USD rate from AED
-                            $rateAed = (float) ($item->single_unit_price ?? $item->unit_price ?? 0);
-                            $rateUsd = $usdRate > 0 ? round($rateAed / $usdRate, 2) : 0;
-                            $lineTotalAed = (float) ($item->subtotal ?? 0);
-                            if ($lineTotalAed <= 0 && $qty > 0 && $rateAed > 0) {
-                                $lineTotalAed = $qty * $rateAed;
+                            $itemCurrency = \App\Classes\Common::resolveOrderItemPriceCurrency($item, $order->order_type ?? 'purchase-orders');
+                            $rateNative = (float) ($item->single_unit_price ?? $item->unit_price ?? 0);
+                            $rateAed = \App\Classes\Common::convertProductPriceToAed($rateNative, $itemCurrency);
+                            $rateUsd = \App\Classes\Common::convertProductPriceToUsd($rateNative, $itemCurrency);
+                            $lineTotalNative = (float) ($item->subtotal ?? 0);
+                            if ($lineTotalNative <= 0 && $qty > 0 && $rateNative > 0) {
+                                $lineTotalNative = $qty * $rateNative;
                             }
+                            $lineTotalAed = \App\Classes\Common::convertProductPriceToAed($lineTotalNative, $itemCurrency);
                             $productName = optional($item->product)->name ?? '—';
                         @endphp
                         <tr>
@@ -343,23 +348,23 @@
                         <table width="100%" cellspacing="0" cellpadding="0" class="totals">
                             <tr>
                                 <td class="lbl" width="58%">SUBTOTAL</td>
-                                <td class="val" width="42%">AED {{ number_format($subtotal, 2) }}</td>
+                                <td class="val" width="42%">{{ $formatOrderAmount($subtotal) }}</td>
                             </tr>
                             <tr>
                                 <td class="lbl">TAX</td>
-                                <td class="val">{{ $tax > 0 ? 'AED ' . number_format($tax, 2) : '—' }}</td>
+                                <td class="val">{{ $tax > 0 ? $formatOrderAmount($tax) : '—' }}</td>
                             </tr>
                             <tr>
                                 <td class="lbl">SHIPPING</td>
-                                <td class="val">{{ $shipping > 0 ? 'AED ' . number_format($shipping, 2) : '—' }}</td>
+                                <td class="val">{{ $shipping > 0 ? $formatOrderAmount($shipping) : '—' }}</td>
                             </tr>
                             <tr>
                                 <td class="lbl">OTHER</td>
-                                <td class="val">{{ $other > 0 ? 'AED ' . number_format($other, 2) : '—' }}</td>
+                                <td class="val">{{ $other > 0 ? $formatOrderAmount($other) : '—' }}</td>
                             </tr>
                             <tr class="grand">
-                                <td class="lbl">TOTAL (DIRHAMS)</td>
-                                <td class="val">AED {{ number_format($grandTotal, 2) }}</td>
+                                <td class="lbl">TOTAL ({{ $orderCurrency }})</td>
+                                <td class="val">{{ $formatOrderAmount($grandTotal) }}</td>
                             </tr>
                         </table>
                     </td>

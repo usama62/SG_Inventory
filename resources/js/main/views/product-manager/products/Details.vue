@@ -27,7 +27,7 @@
                     <a-col :xs="24" :sm="24" :md="8" :lg="8">
                         <a-statistic
                             :title="$t('product.mrp')"
-                            :value="formatAmountCurrency(itemDetails.mrp)"
+                            :value="formatAmountByCurrencyCode(itemDetails.mrp, itemDetails.mrp_currency)"
                             style="margin-right: 50px"
                         />
                     </a-col>
@@ -35,7 +35,10 @@
                         <a-statistic
                             :title="$t('product.purchase_price')"
                             :value="
-                                formatAmountCurrency(itemDetails.purchase_price)
+                                formatAmountByCurrencyCode(
+                                    itemDetails.purchase_price,
+                                    itemDetails.purchase_price_currency
+                                )
                             "
                             style="margin-right: 50px"
                         />
@@ -44,7 +47,10 @@
                         <a-statistic
                             :title="$t('product.sales_price')"
                             :value="
-                                formatAmountCurrency(itemDetails.sales_price)
+                                formatAmountByCurrencyCode(
+                                    itemDetails.sales_price,
+                                    itemDetails.sales_price_currency
+                                )
                             "
                         />
                     </a-col>
@@ -130,8 +136,9 @@
                                     "
                                 >
                                     {{
-                                        formatAmountCurrency(
-                                            record.single_unit_price
+                                        formatAmountByCurrencyCode(
+                                            record.single_unit_price,
+                                            record.price_currency
                                         )
                                     }}
                                 </template>
@@ -139,8 +146,9 @@
                                     v-if="column.dataIndex === 'total_discount'"
                                 >
                                     {{
-                                        formatAmountCurrency(
-                                            record.total_discount
+                                        formatAmountByCurrencyCode(
+                                            record.total_discount,
+                                            record.price_currency
                                         )
                                     }}
                                     ({{ record.discount_rate }}%)
@@ -149,14 +157,17 @@
                                     v-if="column.dataIndex === 'total_tax'"
                                 >
                                     {{
-                                        formatAmountCurrency(record.total_tax)
+                                        formatAmountByCurrencyCode(
+                                            record.total_tax,
+                                            record.price_currency
+                                        )
                                     }}
                                     ({{ record.tax_rate }}%)
                                 </template>
                                 <template
                                     v-if="column.dataIndex === 'subtotal'"
                                 >
-                                    {{ formatAmountCurrency(record.subtotal) }}
+                                    {{ formatAmountByCurrencyCode(record.subtotal, record.price_currency) }}
                                 </template>
                             </template>
                         </a-table>
@@ -207,6 +218,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const {
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             getOrderTypeFromstring,
             formatDate,
             formatDateTime,
@@ -266,6 +278,7 @@ export default defineComponent({
             formatDateTime,
 
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             warehouseStockColumns,
             stockHistoryColumns,
             productOrderColumns,

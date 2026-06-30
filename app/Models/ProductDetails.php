@@ -49,7 +49,7 @@ class ProductDetails extends BaseModel
 
         static::addGlobalScope('current_warehouse', function (Builder $builder) {
             $request = request();
-            $routeName = $request->route()->getName();
+            $routeName = $request->route()?->getName();
 
             if ($routeName && $routeName == 'api.front.homepage.v1' && $request->warehouse) {
                 $warehouseSlug = $request->warehouse;

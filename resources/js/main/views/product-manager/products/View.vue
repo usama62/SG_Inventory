@@ -101,8 +101,9 @@
                                     >
                                         {{
                                             product.details && product.details.sales_price
-                                                ? formatAmountCurrency(
-                                                      product.details.sales_price
+                                                ? formatAmountByCurrencyCode(
+                                                      product.details.sales_price,
+                                                      product.details.sales_price_currency
                                                   )
                                                 : "-"
                                         }}
@@ -119,8 +120,9 @@
                                         {{
                                             product.details &&
                                             product.details.purchase_price
-                                                ? formatAmountCurrency(
-                                                      product.details.purchase_price
+                                                ? formatAmountByCurrencyCode(
+                                                      product.details.purchase_price,
+                                                      product.details.purchase_price_currency
                                                   )
                                                 : "-"
                                         }}
@@ -135,8 +137,9 @@
                                     <a-descriptions-item :label="$t('product.mrp')">
                                         {{
                                             product.details && product.details.mrp
-                                                ? formatAmountCurrency(
-                                                      product.details.mrp
+                                                ? formatAmountByCurrencyCode(
+                                                      product.details.mrp,
+                                                      product.details.mrp_currency
                                                   )
                                                 : "-"
                                         }}
@@ -186,14 +189,14 @@
                         {{ record.name }}
                     </template>
                     <template v-if="column.dataIndex === 'purchase_price'">
-                        {{ formatAmountCurrency(record.details.purchase_price) }}
+                        {{ formatAmountByCurrencyCode(record.details.purchase_price, record.details.purchase_price_currency) }}
                     </template>
 
                     <template v-if="column.dataIndex === 'sales_price'">
-                        {{ formatAmountCurrency(record.details.sales_price) }}
+                        {{ formatAmountByCurrencyCode(record.details.sales_price, record.details.sales_price_currency) }}
                     </template>
                     <template v-if="column.dataIndex === 'mrp'">
-                        {{ formatAmountCurrency(record.details.mrp) }}
+                        {{ formatAmountByCurrencyCode(record.details.mrp, record.details.mrp_currency) }}
                     </template>
                 </template>
             </a-table>
@@ -215,7 +218,7 @@ export default defineComponent({
         ProductDetails,
     },
     setup(props, { emit }) {
-        const { formatAmountCurrency } = common();
+        const { formatAmountCurrency, formatAmountByCurrencyCode } = common();
         const { t } = useI18n();
         const variantTableColumns = ref([
             {
@@ -246,6 +249,7 @@ export default defineComponent({
 
         return {
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             onClose,
             variantTableColumns,
 

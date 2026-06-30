@@ -37,12 +37,20 @@
                         <template v-if="column.dataIndex === 'mrp'">
                             {{
                                 record.details.mrp
-                                    ? formatAmountCurrency(record.details.mrp)
+                                    ? formatAmountByCurrencyCode(
+                                          record.details.mrp,
+                                          record.details.mrp_currency
+                                      )
                                     : "-"
                             }}
                         </template>
                         <template v-if="column.dataIndex === 'sales_price'">
-                            {{ formatAmountCurrency(record.details.sales_price) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    record.details.sales_price,
+                                    record.details.sales_price_currency
+                                )
+                            }}
                         </template>
                     </template>
                 </a-table>
@@ -69,7 +77,7 @@ export default defineComponent({
     },
     setup(props) {
         const { columns, hashableColumns } = fields();
-        const { formatDateTime, formatAmountCurrency, selectedWarehouse } = common();
+        const { formatDateTime, formatAmountCurrency, formatAmountByCurrencyCode, selectedWarehouse } = common();
         const datatableVariables = datatable();
 
         onMounted(() => {
@@ -86,7 +94,7 @@ export default defineComponent({
 
             datatableVariables.tableUrl.value = {
                 url:
-                    "products?fields=id,xid,name,,item_code,image,image_url,category_id,x_category_id,category{id,xid,name},brand_id,x_brand_id,brand{id,xid,name},unit_id,x_unit_id,unit{id,xid,name,short_name},details{mrp,sales_price,tax_id,x_tax_id,purchase_tax_type,sales_tax_type},details:tax{id,xid,name,rate}",
+                    "products?fields=id,xid,name,,item_code,image,image_url,category_id,x_category_id,category{id,xid,name},brand_id,x_brand_id,brand{id,xid,name},unit_id,x_unit_id,unit{id,xid,name,short_name},details{mrp,mrp_currency,sales_price,sales_price_currency,tax_id,x_tax_id,purchase_tax_type,sales_tax_type},details:tax{id,xid,name,rate}",
                 extraFilters,
             };
             datatableVariables.hashable.value = [...hashableColumns];
@@ -115,6 +123,7 @@ export default defineComponent({
 
             formatDateTime,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
         };
     },
 });

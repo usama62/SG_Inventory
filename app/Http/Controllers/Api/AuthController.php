@@ -157,7 +157,7 @@ class AuthController extends ApiBaseController
     public function pdf($uniqueId, $langKey = "en")
     {
         
-        $order = Order::with(['warehouse', 'user', 'items', 'items.product', 'items.unit', 'orderPayments:id,order_id,payment_id,amount', 'orderPayments.payment:id,payment_mode_id', 'orderPayments.payment.paymentMode:id,name'])
+        $order = Order::with(['warehouse', 'user', 'items', 'items.product', 'items.product.details', 'items.unit', 'orderPayments:id,order_id,payment_id,amount', 'orderPayments.payment:id,payment_mode_id', 'orderPayments.payment.paymentMode:id,name'])
             ->where('unique_id', $uniqueId)
             ->first();
 
@@ -228,7 +228,7 @@ class AuthController extends ApiBaseController
 
    public function receipt($uniqueId, $langKey = 'en')
 {
-     $order = Order::with(['warehouse', 'user', 'items', 'items.product', 'items.unit', 'orderPayments:id,order_id,payment_id,amount', 'orderPayments.payment:id,payment_mode_id', 'orderPayments.payment.paymentMode:id,name'])
+     $order = Order::with(['warehouse', 'user', 'items', 'items.unit', 'orderPayments:id,order_id,payment_id,amount', 'orderPayments.payment:id,payment_mode_id', 'orderPayments.payment.paymentMode:id,name'])
             ->where('unique_id', $uniqueId)
             ->first();
 
@@ -253,49 +253,52 @@ class AuthController extends ApiBaseController
         $warehouse = Warehouse::withoutGlobalScope(CompanyScope::class)->find($order->warehouse_id);
         $staffMember = StaffMember::withoutGlobalScope(CompanyScope::class)->find($order->staff_user_id);
         $customer = Customer::withoutGlobalScope(CompanyScope::class)->find($order->user_id);
-        // $orderPayments = ($order->orderPayments);
-
-        // dd($customer);
-
-        
 
         $company = Company::with('currency')->find($order->company_id)
                 ?? abort(404, 'Company not found');
 
-        if ($order->order_type === 'purchase-orders') {
-            $pdfData = [
-                'order' => $order,
-                'company' => $company,
-                'warehouse' => $warehouse,
-                'staffMember' => $staffMember,
-                'customer' => $customer,
-                'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
-                'stamp_src' => Common::getCompanyStampDataUri($company),
-            ];
-
-            $pdf = PDF::loadView('pdf.receipt', $pdfData);
-
-            return $pdf->download('receipt-' . $order->unique_id . '.pdf');
-        }
-
-        $pdfData = [
-            'orderStatusText' => $orderStatusText,
-            'paymentStatusText' => $paymentStatusText,
-            'order' => $order,
-            'company' => $company,
-            'dateTimeFormat' => 'd-m-Y',
-            'traslations' => $invoiceTranslation,
-            'warehouse' => $warehouse,
-            'staffMember' => $staffMember,
-            'customer' => $customer,
-            'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
-            'stamp_src' => Common::getCompanyStampDataUri($company),
-        ];
+        $pdfData = $this->buildReceiptPdfData(
+            $order,
+            $company,
+            $warehouse,
+            $staffMember,
+            $customer,
+            [
+                'orderStatusText' => $orderStatusText,
+                'paymentStatusText' => $paymentStatusText,
+                'dateTimeFormat' => 'd-m-Y',
+                'traslations' => $invoiceTranslation,
+            ]
+        );
 
         $pdf = PDF::loadView('pdf.receipt', $pdfData);
 
     return $pdf->download('receipt-' . $order->unique_id . '.pdf');
 }
+
+    protected function buildReceiptPdfData(
+        Order $order,
+        Company $company,
+        $warehouse,
+        $staffMember,
+        $customer,
+        array $extra = []
+    ): array {
+        $receiptAmounts = Common::buildReceiptAmounts($order);
+
+        return array_merge([
+            'order' => $order,
+            'company' => $company,
+            'warehouse' => $warehouse,
+            'staffMember' => $staffMember,
+            'customer' => $customer,
+            'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
+            'stamp_src' => Common::getCompanyStampDataUri($company),
+            'order_currency' => $receiptAmounts['order_currency'],
+            'amount_figure' => $receiptAmounts['amount_figure'],
+            'amount_words_line' => $receiptAmounts['amount_words_line'],
+        ], $extra);
+    }
 
     protected function downloadPurchaseOrderPdf(Order $order, Company $company)
     {
@@ -304,7 +307,7 @@ class AuthController extends ApiBaseController
         $customer = Customer::withoutGlobalScope(CompanyScope::class)->find($order->user_id);
         $supplier = Supplier::withoutGlobalScope(CompanyScope::class)->find($order->user_id);
 
-        $items = OrderItem::with('product')
+        $items = OrderItem::with(['product', 'product.details'])
             ->where('order_id', $order->getKey())
             ->get();
 

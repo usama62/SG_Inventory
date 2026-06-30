@@ -679,6 +679,32 @@ class Common
                 $orderItem->tax_type = $productItem->tax_type;
                 $orderItem->subtotal = $productItem->subtotal;
                 $orderItem->single_unit_price = $productItem->single_unit_price;
+
+                if (!isset($productDetails)) {
+                    $resolveProductId = self::getIdFromHash($productItem->xid);
+                    $resolveWarehouseId = $order->order_type == 'stock-transfers'
+                        ? $order->from_warehouse_id
+                        : $order->warehouse_id;
+                    $productDetails = ProductDetails::withoutGlobalScope('current_warehouse')
+                        ->where('warehouse_id', '=', $resolveWarehouseId)
+                        ->where('product_id', '=', $resolveProductId)
+                        ->first();
+                }
+
+                $purchaseTypes = ['purchases', 'purchase-returns', 'purchase-orders', 'stock-transfers'];
+                if (
+                    isset($productItem->price_currency)
+                    && in_array(strtoupper($productItem->price_currency), ['USD', 'AED', 'INR'], true)
+                ) {
+                    $orderItem->price_currency = strtoupper($productItem->price_currency);
+                } elseif ($productDetails) {
+                    $orderItem->price_currency = in_array($orderType, $purchaseTypes, true)
+                        ? strtoupper($productDetails->purchase_price_currency ?? 'AED')
+                        : strtoupper($productDetails->sales_price_currency ?? 'AED');
+                } else {
+                    $orderItem->price_currency = 'AED';
+                }
+
                 $orderItem->save();
 
                 // Inserting sub taxes
@@ -1210,6 +1236,236 @@ class Common
             ->first();
 
         return $invoiceTranslation ? $invoiceTranslation->value : $text;
+    }
+
+    public const USD_TO_AED_RATE = 3.67;
+
+    public const INR_TO_AED_RATE = 0.043744;
+
+    public static function convertProductPriceToAed(float $amount, string $currency): float
+    {
+        return match (strtoupper($currency)) {
+            'USD' => round($amount * self::USD_TO_AED_RATE, 2),
+            'INR' => round($amount * self::INR_TO_AED_RATE, 2),
+            default => round($amount, 2),
+        };
+    }
+
+    public static function convertProductPriceToUsd(float $amount, string $currency): float
+    {
+        $aed = self::convertProductPriceToAed($amount, $currency);
+
+        return self::USD_TO_AED_RATE > 0 ? round($aed / self::USD_TO_AED_RATE, 2) : 0;
+    }
+
+    public static function resolveOrderItemPriceCurrency($item, string $orderType = 'sales'): string
+    {
+        $storedCurrency = $item->getAttributes()['price_currency'] ?? null;
+
+        if (!empty($storedCurrency)) {
+            return strtoupper(trim($storedCurrency));
+        }
+
+        $productDetails = optional(optional($item->product)->details);
+        $purchaseTypes = ['purchases', 'purchase-returns', 'purchase-orders', 'stock-transfers'];
+
+        if (!$productDetails || empty($productDetails->id)) {
+            $productId = $item->getAttributes()['product_id'] ?? null;
+
+            if ($productId) {
+                $productDetails = ProductDetails::withoutGlobalScope(CompanyScope::class)
+                    ->withoutGlobalScope('current_warehouse')
+                    ->where('product_id', $productId)
+                    ->orderBy('id')
+                    ->first();
+            }
+        }
+
+        if ($productDetails) {
+            return strtoupper(
+                in_array($orderType, $purchaseTypes, true)
+                    ? ($productDetails->purchase_price_currency ?? 'AED')
+                    : ($productDetails->sales_price_currency ?? 'AED')
+            );
+        }
+
+        return 'AED';
+    }
+
+    public static function hydrateOrderItemsForDocument(Order $order): Order
+    {
+        $items = OrderItem::query()
+            ->where('order_id', $order->getKey())
+            ->get();
+
+        $order->setRelation('items', $items);
+
+        return $order;
+    }
+
+    public static function resolveOrderCurrency($order, string $orderType = 'sales'): string
+    {
+        $orderId = $order->getKey();
+
+        if ($orderId) {
+            $dbCurrencies = DB::table('order_items')
+                ->where('order_id', $orderId)
+                ->whereNotNull('price_currency')
+                ->where('price_currency', '!=', '')
+                ->pluck('price_currency')
+                ->map(fn ($currency) => strtoupper(trim($currency)))
+                ->filter(fn ($currency) => in_array($currency, ['USD', 'AED', 'INR'], true))
+                ->unique()
+                ->values();
+
+            if ($dbCurrencies->count() >= 1) {
+                return $dbCurrencies->first();
+            }
+
+            $purchaseTypes = ['purchases', 'purchase-returns', 'purchase-orders', 'stock-transfers'];
+            $currencyColumn = in_array($orderType, $purchaseTypes, true)
+                ? 'purchase_price_currency'
+                : 'sales_price_currency';
+
+            $detailCurrencies = DB::table('order_items')
+                ->join('product_details', 'product_details.product_id', '=', 'order_items.product_id')
+                ->where('order_items.order_id', $orderId)
+                ->whereNotNull("product_details.{$currencyColumn}")
+                ->pluck("product_details.{$currencyColumn}")
+                ->map(fn ($currency) => strtoupper(trim($currency)))
+                ->filter(fn ($currency) => in_array($currency, ['USD', 'AED', 'INR'], true))
+                ->unique()
+                ->values();
+
+            if ($detailCurrencies->count() >= 1) {
+                return $detailCurrencies->first();
+            }
+        }
+
+        $items = $order->items ?? collect();
+
+        if ($items->isEmpty()) {
+            return 'AED';
+        }
+
+        $currencies = $items
+            ->map(fn ($item) => self::resolveOrderItemPriceCurrency($item, $orderType))
+            ->unique()
+            ->values();
+
+        return $currencies->count() === 1
+            ? $currencies->first()
+            : self::resolveOrderItemPriceCurrency($items->first(), $orderType);
+    }
+
+    public static function receiptNumberToWords(float $num): string
+    {
+        $ones = [
+            0 => '', 1 => 'One', 2 => 'Two', 3 => 'Three', 4 => 'Four', 5 => 'Five',
+            6 => 'Six', 7 => 'Seven', 8 => 'Eight', 9 => 'Nine', 10 => 'Ten',
+            11 => 'Eleven', 12 => 'Twelve', 13 => 'Thirteen', 14 => 'Fourteen',
+            15 => 'Fifteen', 16 => 'Sixteen', 17 => 'Seventeen', 18 => 'Eighteen', 19 => 'Nineteen',
+        ];
+        $tens = [
+            2 => 'Twenty', 3 => 'Thirty', 4 => 'Forty', 5 => 'Fifty',
+            6 => 'Sixty', 7 => 'Seventy', 8 => 'Eighty', 9 => 'Ninety',
+        ];
+
+        if ($num == 0) {
+            return 'Zero';
+        }
+
+        $num = number_format($num, 2, '.', '');
+        $split = explode('.', $num);
+        $integerPart = (int) $split[0];
+        $words = '';
+        $levels = ['', 'Thousand', 'Million', 'Billion'];
+        $i = 0;
+
+        while ($integerPart > 0) {
+            $chunk = $integerPart % 1000;
+
+            if ($chunk) {
+                $chunkWords = '';
+                $hundreds = intval($chunk / 100);
+                $remainder = $chunk % 100;
+
+                if ($hundreds) {
+                    $chunkWords .= $ones[$hundreds] . ' Hundred ';
+                }
+
+                if ($remainder) {
+                    if ($remainder < 20) {
+                        $chunkWords .= $ones[$remainder] . ' ';
+                    } else {
+                        $chunkWords .= $tens[intval($remainder / 10)] . ' ' . $ones[$remainder % 10] . ' ';
+                    }
+                }
+
+                $words = trim($chunkWords) . ' ' . $levels[$i] . ' ' . $words;
+            }
+
+            $integerPart = intval($integerPart / 1000);
+            $i++;
+        }
+
+        return trim($words);
+    }
+
+    public static function buildReceiptAmounts(Order $order): array
+    {
+        self::hydrateOrderItemsForDocument($order);
+
+        $orderType = $order->order_type ?? 'sales';
+        $orderCurrency = self::resolveOrderCurrency($order, $orderType);
+        $orderTotal = (float) ($order->total ?? 0);
+        $amountWords = self::receiptNumberToWords($orderTotal);
+
+        return [
+            'order_currency' => $orderCurrency,
+            'amount_figure' => self::formatAmountByCurrencyCode($orderTotal, $orderCurrency, 0),
+            'amount_words_line' => '(' . $amountWords . ' ' . self::currencyLabelPlural($orderCurrency) . '.)',
+        ];
+    }
+
+    public static function formatAmountByCurrencyCode(float $amount, string $currencyCode = 'AED', int $decimals = 2): string
+    {
+        $formatted = number_format($amount, $decimals, '.', ',');
+
+        return match (strtoupper($currencyCode)) {
+            'USD' => '$' . $formatted,
+            'INR' => '₹' . $formatted,
+            default => 'AED ' . $formatted,
+        };
+    }
+
+    public static function currencyLabelPlural(string $currencyCode): string
+    {
+        return match (strtoupper($currencyCode)) {
+            'USD' => 'US Dollars',
+            'INR' => 'Indian Rupees',
+            default => 'Dirhams',
+        };
+    }
+
+    public static function calculateOrderItemsTotalInAed($order, string $orderType = 'sales'): float
+    {
+        $total = 0;
+
+        foreach ($order->items ?? [] as $item) {
+            $currency = self::resolveOrderItemPriceCurrency($item, $orderType);
+            $lineTotal = (float) ($item->subtotal ?? 0);
+
+            if ($lineTotal <= 0) {
+                $qty = (float) ($item->quantity ?? 0);
+                $rate = (float) ($item->single_unit_price ?? $item->unit_price ?? 0);
+                $lineTotal = $qty * $rate;
+            }
+
+            $total += self::convertProductPriceToAed($lineTotal, $currency);
+        }
+
+        return round($total, 2);
     }
 
     public static function formatAmountCurrency($currency, $amount)

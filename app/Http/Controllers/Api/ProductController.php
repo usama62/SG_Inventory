@@ -415,13 +415,16 @@ class ProductController extends ApiBaseController
             if ($orderType == 'purchases' || $orderType == 'quotations' || $orderType == 'purchase-orders' || ($orderType == 'sales' && $productDetails->current_stock > 0) || ($orderType == 'sales-returns') || ($orderType == 'purchase-returns' && $productDetails->current_stock > 0) || ($orderType == 'stock-transfers' && $productDetails->current_stock > 0) || $product->product_type == 'service') {
                 $stockQuantity = $productDetails->current_stock;
                 $unit = $product->unit_id != null ? Unit::find($product->unit_id) : null;
+                $priceCurrency = 'AED';
 
                 if ($orderType == 'purchases' || $orderType == 'purchase-returns' || $orderType == 'stock-transfers' || $orderType == 'purchase-orders') {
                     $unitPrice = $productDetails->purchase_price;
                     $taxType = $productDetails->purchase_tax_type;
+                    $priceCurrency = $productDetails->purchase_price_currency ?? 'AED';
                 } else if ($orderType == 'sales' || $orderType == 'sales-returns' || $orderType == 'quotations') {
                     $unitPrice = $productDetails->sales_price;
                     $taxType = $productDetails->sales_tax_type;
+                    $priceCurrency = $productDetails->sales_price_currency ?? 'AED';
                 }
 
                 $singleUnitPrice = $unitPrice;
@@ -459,6 +462,7 @@ class ProductController extends ApiBaseController
                     'unit'    =>  $unit,
                     'unit_price'    =>  $unitPrice,
                     'single_unit_price'    =>  $singleUnitPrice,
+                    'price_currency'    =>  $priceCurrency ?? 'AED',
                     'subtotal'    =>  $subTotal,
                     'quantity'    =>  1,
                     'stock_quantity'    =>  $stockQuantity,

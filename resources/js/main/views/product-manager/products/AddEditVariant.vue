@@ -99,16 +99,16 @@
                     record.purchase_price
                 "
             >
-                {{ formatAmountCurrency(record.purchase_price) }}
+                {{ formatAmountByCurrencyCode(record.purchase_price, record.purchase_price_currency) }}
             </template>
 
             <template
                 v-if="column.dataIndex === 'sales_price' && record && record.sales_price"
             >
-                {{ formatAmountCurrency(record.sales_price) }}
+                {{ formatAmountByCurrencyCode(record.sales_price, record.sales_price_currency) }}
             </template>
             <template v-if="column.dataIndex === 'mrp' && record && record.mrp">
-                {{ formatAmountCurrency(record.mrp) }}
+                {{ formatAmountByCurrencyCode(record.mrp, record.mrp_currency) }}
             </template>
             <template v-if="column.dataIndex === 'action'">
                 <a-button type="primary" @click="editItem(record)">
@@ -448,7 +448,7 @@ export default defineComponent({
         InputLabelPopover,
     },
     setup(props, { emit }) {
-        const { appSetting, formatAmountCurrency } = common();
+        const { appSetting, formatAmountCurrency, formatAmountByCurrencyCode } = common();
         const { addEditRequestAdmin, loading, rules } = apiAdmin();
 
         const variantId = ref([]);
@@ -750,6 +750,7 @@ export default defineComponent({
         return {
             appSetting,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
 
             variantId,
             variantValueId,

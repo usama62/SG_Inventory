@@ -32,19 +32,19 @@
                         <template
                             v-if="column.dataIndex === 'single_unit_price'"
                         >
-                            {{ formatAmountCurrency(record.single_unit_price) }}
+                            {{ formatAmountByCurrencyCode(record.single_unit_price, record.price_currency) }}
                         </template>
                         <template v-if="column.dataIndex === 'total_discount'">
-                            {{ formatAmountCurrency(record.total_discount) }}
+                            {{ formatAmountByCurrencyCode(record.total_discount, record.price_currency) }}
                             ({{ record.discount_rate }}%)
                         </template>
                         <template v-if="column.dataIndex === 'total_tax'">
-                            {{ formatAmountCurrency(record.total_tax) }} ({{
+                            {{ formatAmountByCurrencyCode(record.total_tax, record.price_currency) }} ({{
                                 record.tax_rate
                             }}%)
                         </template>
                         <template v-if="column.dataIndex === 'subtotal'">
-                            {{ formatAmountCurrency(record.subtotal) }}
+                            {{ formatAmountByCurrencyCode(record.subtotal, record.price_currency) }}
                         </template>
                     </template>
                     <template #summary>
@@ -116,13 +116,14 @@ export default defineComponent({
             formatDate,
             formatDateTime,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             getOrderTypeFromstring,
         } = common();
         const datatableVariables = datatable();
 
         onMounted(() => {
             datatableVariables.tableUrl.value = {
-                url: "order-items?fields=id,xid,quantity,single_unit_price,unit_price,total_discount,discount_rate,total_tax,tax_rate,subtotal,order_id,x_order_id,order{id,xid,order_type,order_date},unit_id,x_unit_id,unit{id,xid,short_name},product_id,x_product_id,product{id,xid,unit_id,x_unit_id},product:unit{id,xid,short_name}",
+                url: "order-items?fields=id,xid,quantity,single_unit_price,unit_price,price_currency,total_discount,discount_rate,total_tax,tax_rate,subtotal,order_id,x_order_id,order{id,xid,order_type,order_date},unit_id,x_unit_id,unit{id,xid,short_name},product_id,x_product_id,product{id,xid,unit_id,x_unit_id},product:unit{id,xid,short_name}",
                 filters: {
                     product_id: props.product.xid,
                 },
@@ -165,6 +166,7 @@ export default defineComponent({
             formatDate,
             formatDateTime,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             getOrderTypeFromstring,
         };
     },

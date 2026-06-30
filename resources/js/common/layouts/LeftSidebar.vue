@@ -962,17 +962,7 @@
                         </a-menu-item>
                     </a-sub-menu>
 
-                    <a-menu-item
-                        @click="
-                            () => {
-                                menuSelected();
-                                $router.push({
-                                    name: 'admin.settings.profile.index',
-                                });
-                            }
-                        "
-                        key="settings"
-                    >
+                    <a-menu-item @click="goToSettings" key="settings">
                         <SettingOutlined />
                         <span>{{ $t("menu.settings") }}</span>
                     </a-menu-item>
@@ -1010,7 +1000,7 @@
 import { defineComponent, ref, watch, onMounted, computed } from "vue";
 import { Layout } from "ant-design-vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import {
     HomeOutlined,
     LogoutOutlined,
@@ -1070,28 +1060,60 @@ export default defineComponent({
             menuCollapsed,
             willSubscriptionModuleVisible,
         } = common();
-        const rootSubmenuKeys = [
-            "dashboard",
+        const submenuKeys = [
+            "parties",
             "product_manager",
-            "stock_management",
-            "pos",
-            "stock_transfer",
-            "stock_adjustment",
             "sales",
             "purchases",
             "expense_manager",
-            "users",
-            "parties",
             "reports",
-            "settings",
-            "online_orders",
             "website_setup",
-            "cash_bank",
-            "subscription",
             "hrm",
+        ];
+        const hrmMenuParents = [
+            "staff",
+            "leaves",
+            "attendances",
+            "payrolls",
+            "appreciations",
+            "holidays",
         ];
         const store = useStore();
         const route = useRoute();
+        const router = useRouter();
+
+        const resolveOpenKeys = (menuParent) => {
+            if (innerWidth <= 991 || menuCollapsed.value || !menuParent) {
+                return [];
+            }
+
+            if (hrmMenuParents.includes(menuParent)) {
+                return ["hrm"];
+            }
+
+            return submenuKeys.includes(menuParent) ? [menuParent] : [];
+        };
+
+        const resolveSelectedKey = (currentRoute) => {
+            let menuKey =
+                typeof currentRoute.meta.menuKey == "function"
+                    ? currentRoute.meta.menuKey(currentRoute)
+                    : currentRoute.meta.menuKey;
+
+            if (currentRoute.meta.menuParent == "settings") {
+                return "settings";
+            }
+
+            if (currentRoute.meta.menuParent == "subscription") {
+                return "subscription";
+            }
+
+            if (hrmMenuParents.includes(currentRoute.meta.menuParent)) {
+                return currentRoute.meta.menuParent;
+            }
+
+            return menuKey ? menuKey.replace("-", "_") : "dashboard";
+        };
 
         const innerWidth = window.innerWidth;
         const openKeys = ref([]);
@@ -1099,61 +1121,8 @@ export default defineComponent({
         const mode = ref("inline");
 
         onMounted(() => {
-            var menuKey =
-                typeof route.meta.menuKey == "function"
-                    ? route.meta.menuKey(route)
-                    : route.meta.menuKey;
-
-            if (route.meta.menuParent == "settings") {
-                menuKey = "settings";
-            }
-
-            if (route.meta.menuParent == "subscription") {
-                menuKey = "subscription";
-            }
-
-            if (route.meta.menuParent == "staff") {
-                menuKey = "staff";
-            }
-
-            if (route.meta.menuParent == "holidays") {
-                menuKey = "holidays";
-            }
-
-            if (route.meta.menuParent == "leaves") {
-                menuKey = "leaves";
-            }
-
-            if (route.meta.menuParent == "attendances") {
-                menuKey = "attendances";
-            }
-
-            if (route.meta.menuParent == "payrolls") {
-                menuKey = "payrolls";
-            }
-
-            if (route.meta.menuParent == "appreciations") {
-                menuKey = "appreciations";
-            }
-
-            if (innerWidth <= 991) {
-                openKeys.value = [];
-            } else if (
-                route.meta.menuParent == "staff" ||
-                route.meta.menuParent == "leaves" ||
-                route.meta.menuParent == "attendances" ||
-                route.meta.menuParent == "payrolls" ||
-                route.meta.menuParent == "appreciations" ||
-                route.meta.menuParent == "holidays"
-            ) {
-                openKeys.value = menuCollapsed.value ? [] : ["hrm"];
-            } else {
-                openKeys.value = menuCollapsed.value
-                    ? []
-                    : [route.meta.menuParent];
-            }
-
-            selectedKeys.value = [menuKey.replace("-", "_")];
+            openKeys.value = resolveOpenKeys(route.meta.menuParent);
+            selectedKeys.value = [resolveSelectedKey(route)];
         });
 
         const logout = () => {
@@ -1166,119 +1135,33 @@ export default defineComponent({
             }
         };
 
+        const goToSettings = () => {
+            menuSelected();
+            router.push({ name: "admin.settings.profile.index" });
+        };
+
         const onOpenChange = (currentOpenKeys) => {
             const latestOpenKey = currentOpenKeys.find(
                 (key) => openKeys.value.indexOf(key) === -1
             );
 
-            if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
+            if (submenuKeys.indexOf(latestOpenKey) === -1) {
                 openKeys.value = currentOpenKeys;
             } else {
                 openKeys.value = latestOpenKey ? [latestOpenKey] : [];
             }
         };
 
-        watch(route, (newVal, oldVal) => {
-            const menuKey =
-                typeof newVal.meta.menuKey == "function"
-                    ? newVal.meta.menuKey(newVal)
-                    : newVal.meta.menuKey;
-
-            if (innerWidth <= 991) {
-                openKeys.value = [];
-            } else if (
-                newVal.meta.menuParent == "staff" ||
-                newVal.meta.menuParent == "leaves" ||
-                newVal.meta.menuParent == "attendances" ||
-                newVal.meta.menuParent == "payrolls" ||
-                newVal.meta.menuParent == "appreciations" ||
-                newVal.meta.menuParent == "holidays"
-            ) {
-                openKeys.value = ["hrm"];
-            } else {
-                openKeys.value = [newVal.meta.menuParent];
-            }
-
-            if (newVal.meta.menuParent == "settings") {
-                selectedKeys.value = ["settings"];
-            } else if (newVal.meta.menuParent == "subscription") {
-                selectedKeys.value = ["subscription"];
-            } else if (newVal.meta.menuParent == "staff") {
-                selectedKeys.value = ["staff"];
-            } else if (newVal.meta.menuParent == "leaves") {
-                selectedKeys.value = ["leaves"];
-            } else if (newVal.meta.menuParent == "holidays") {
-                selectedKeys.value = ["holidays"];
-            } else if (newVal.meta.menuParent == "payrolls") {
-                selectedKeys.value = ["payrolls"];
-            } else if (newVal.meta.menuParent == "attendances") {
-                selectedKeys.value = ["attendances"];
-            } else if (newVal.meta.menuParent == "appreciations") {
-                selectedKeys.value = ["appreciations"];
-            } else {
-                selectedKeys.value = [menuKey.replace("-", "_")];
-            }
+        watch(route, (newVal) => {
+            openKeys.value = resolveOpenKeys(newVal.meta.menuParent);
+            selectedKeys.value = [resolveSelectedKey(newVal)];
         });
 
         watch(
             () => menuCollapsed.value,
-            (newVal, oldVal) => {
-                const menuKey =
-                    typeof route.meta.menuKey == "function"
-                        ? route.meta.menuKey(route)
-                        : route.meta.menuKey;
-
-                if (innerWidth <= 991 && menuCollapsed.value) {
-                    openKeys.value = [];
-                } else {
-                    openKeys.value = menuCollapsed.value
-                        ? []
-                        : [route.meta.menuParent];
-                }
-
-                if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "settings"
-                ) {
-                    selectedKeys.value = ["settings"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "subscription"
-                ) {
-                    selectedKeys.value = ["subscription"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "staff"
-                ) {
-                    selectedKeys.value = ["staff"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "leaves"
-                ) {
-                    selectedKeys.value = ["leaves"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "holidays"
-                ) {
-                    selectedKeys.value = ["holidays"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "payrolls"
-                ) {
-                    selectedKeys.value = ["payrolls"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "appreciations"
-                ) {
-                    selectedKeys.value = ["appreciations"];
-                } else if (
-                    route.meta.menuParent &&
-                    route.meta.menuParent == "attendances"
-                ) {
-                    selectedKeys.value = ["attendances"];
-                } else {
-                    selectedKeys.value = [menuKey.replace("-", "_")];
-                }
+            () => {
+                openKeys.value = resolveOpenKeys(route.meta.menuParent);
+                selectedKeys.value = [resolveSelectedKey(route)];
             }
         );
 
@@ -1291,6 +1174,7 @@ export default defineComponent({
 
             onOpenChange,
             menuSelected,
+            goToSettings,
             menuCollapsed,
             appSetting,
             appType,

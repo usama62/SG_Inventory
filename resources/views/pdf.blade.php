@@ -182,10 +182,10 @@ function numberToWords($num)
     return trim($words) . " Only";
 }
 
-    $aed = $order->total;
-    $usdRate = 3.67; // yahan apna rate laga dena
-
-    $usd = $aed / $usdRate;
+    $orderCurrency = \App\Classes\Common::resolveOrderCurrency($order, $order->order_type ?? 'sales');
+    $orderTotalNative = (float) ($order->total ?? 0);
+    $orderTotalAed = \App\Classes\Common::convertProductPriceToAed($orderTotalNative, $orderCurrency);
+    $orderTotalUsd = \App\Classes\Common::convertProductPriceToUsd($orderTotalNative, $orderCurrency);
 @endphp
 
 
@@ -207,7 +207,7 @@ function numberToWords($num)
 
     $contactNo = optional($warehouse)->phone
         ?? optional($company)->phone
-        ?? '+971 56 409 0798';
+        ?? '+97143358029';
     $termsOfDelivery = optional($customer)->terms_of_delivery ?? ($order->terms_of_delivery ?? '');
 
     $buyer = optional($customer)->name ?? ($order->buyer_name ?? '');
@@ -272,12 +272,15 @@ function numberToWords($num)
       @foreach($order->items as $item)
         @php
           $qty = (float) ($item->quantity ?? 0);
-          $rateAed = (float) ($item->single_unit_price ?? $item->unit_price ?? 0);
-          $rateUsd = $usdRate > 0 ? round($rateAed / $usdRate, 2) : 0;
-          $lineTotalAed = (float) ($item->subtotal ?? 0);
-          if ($lineTotalAed <= 0 && $qty > 0 && $rateAed > 0) {
-              $lineTotalAed = $qty * $rateAed;
+          $itemCurrency = \App\Classes\Common::resolveOrderItemPriceCurrency($item, $order->order_type ?? 'sales');
+          $rateNative = (float) ($item->single_unit_price ?? $item->unit_price ?? 0);
+          $rateAed = \App\Classes\Common::convertProductPriceToAed($rateNative, $itemCurrency);
+          $rateUsd = \App\Classes\Common::convertProductPriceToUsd($rateNative, $itemCurrency);
+          $lineTotalNative = (float) ($item->subtotal ?? 0);
+          if ($lineTotalNative <= 0 && $qty > 0 && $rateNative > 0) {
+              $lineTotalNative = $qty * $rateNative;
           }
+          $lineTotalAed = \App\Classes\Common::convertProductPriceToAed($lineTotalNative, $itemCurrency);
         @endphp
         <tr>
           <td>{{ $customer->marks_and_nos ?? '' }}</td>
@@ -294,21 +297,21 @@ function numberToWords($num)
         <td>{{ number_format($order->total_quantity, 2) }}</td>
         <td></td>
         <td></td>
-        <td>{{ number_format($order->total, 2) }}</td>
+        <td>{{ number_format($orderTotalAed, 2) }}</td>
       </tr>
   </table>
 
   <!-- Amount in Words -->
   <div class="amount-words">
     AMOUNT (IN WORDS):<br>
-    AED {{ strtoupper(numberToWords($order->total)) }}
+    {{ strtoupper($orderCurrency) }} {{ strtoupper(numberToWords($orderTotalNative)) }}
   </div>
    <!-- Amount in Words -->
   <div class="amount-words">
     AMOUNT IN :<br>
-    AED {{$order->total}}
+    {{ \App\Classes\Common::formatAmountByCurrencyCode($orderTotalNative, $orderCurrency) }}
      <br>
-    (USD {{ number_format($usd, 2) }})
+    ({{ \App\Classes\Common::formatAmountByCurrencyCode($orderTotalUsd, 'USD') }})
   </div>
 
   <!-- Bank Details -->

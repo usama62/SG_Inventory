@@ -109,6 +109,7 @@ trait OrderTraits
                     'total_tax'    =>  $allOrderIteam->total_tax,
                     'unit_price'    =>  $allOrderIteam->unit_price,
                     'single_unit_price'    =>  $allOrderIteam->single_unit_price,
+                    'price_currency'    =>  $allOrderIteam->price_currency ?? 'AED',
                     'subtotal'    =>  $allOrderIteam->subtotal,
                     'quantity'    =>  $allOrderIteam->quantity,
                     'tax_rate'    =>  $allOrderIteam->tax_rate,

@@ -29,10 +29,20 @@
                             }}
                         </template>
                         <template v-if="column.dataIndex === 'sales_price'">
-                            {{ formatAmountCurrency(record.details.sales_price) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    record.details.sales_price,
+                                    record.details.sales_price_currency
+                                )
+                            }}
                         </template>
                         <template v-if="column.dataIndex === 'purchase_price'">
-                            {{ formatAmountCurrency(record.details.purchase_price) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    record.details.purchase_price,
+                                    record.details.purchase_price_currency
+                                )
+                            }}
                         </template>
                         <template v-if="column.dataIndex === 'current_stock'">
                             {{
@@ -42,17 +52,19 @@
                         <template v-if="column.dataIndex === 'stock_value'">
                             {{ $t("product.by_purchase") }} :
                             <a-typography-text strong>{{
-                                formatAmountCurrency(
+                                formatAmountByCurrencyCode(
                                     record.details.current_stock *
-                                        record.details.purchase_price
+                                        record.details.purchase_price,
+                                    record.details.purchase_price_currency
                                 )
                             }}</a-typography-text>
                             <br />
                             {{ $t("product.by_sales") }} :
                             <a-typography-text strong>{{
-                                formatAmountCurrency(
+                                formatAmountByCurrencyCode(
                                     record.details.current_stock *
-                                        record.details.sales_price
+                                        record.details.sales_price,
+                                    record.details.sales_price_currency
                                 )
                             }}</a-typography-text>
                         </template>
@@ -117,7 +129,7 @@ export default defineComponent({
     },
     setup(props) {
         const { summaryColumns, hashableColumns } = fields();
-        const { formatDateTime, formatAmountCurrency, selectedWarehouse } = common();
+        const { formatDateTime, formatAmountCurrency, formatAmountByCurrencyCode, selectedWarehouse } = common();
         const datatableVariables = datatable();
 
         onMounted(() => {
@@ -138,7 +150,7 @@ export default defineComponent({
 
             datatableVariables.tableUrl.value = {
                 url:
-                    "products?fields=id,xid,name,,item_code,image,image_url,category_id,x_category_id,category{id,xid,name},brand_id,x_brand_id,brand{id,xid,name},unit_id,x_unit_id,unit{id,xid,name,short_name},details{stock_quantitiy_alert,opening_stock,opening_stock_date,wholesale_price,wholesale_quantity,mrp,purchase_price,sales_price,tax_id,x_tax_id,purchase_tax_type,sales_tax_type,current_stock,warehouse_id,x_warehouse_id,status},details:tax{id,xid,name,rate}",
+                    "products?fields=id,xid,name,,item_code,image,image_url,category_id,x_category_id,category{id,xid,name},brand_id,x_brand_id,brand{id,xid,name},unit_id,x_unit_id,unit{id,xid,name,short_name},details{stock_quantitiy_alert,opening_stock,opening_stock_date,wholesale_price,wholesale_quantity,mrp,mrp_currency,purchase_price,purchase_price_currency,sales_price,sales_price_currency,tax_id,x_tax_id,purchase_tax_type,sales_tax_type,current_stock,warehouse_id,x_warehouse_id,status},details:tax{id,xid,name,rate}",
                 filters,
             };
             datatableVariables.hashable.value = [...hashableColumns];
@@ -189,6 +201,7 @@ export default defineComponent({
 
             formatDateTime,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             totals,
         };
     },

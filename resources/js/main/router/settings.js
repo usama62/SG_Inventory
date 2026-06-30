@@ -6,6 +6,10 @@ export default [
         component: () => import("../../common/layouts/Admin.vue"),
         children: [
             {
+                path: "",
+                redirect: { name: "admin.settings.profile.index" },
+            },
+            {
                 path: "company",
                 component: () => import("../views/settings/company/Edit.vue"),
                 name: "admin.settings.company.index",

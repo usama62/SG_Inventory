@@ -65,7 +65,7 @@ const stockManagement = () => {
             orderType.value == "purchase-orders" ? PO_DEFAULT_SHIP_TO_ADDRESS : '',
         ship_to_phone:
             orderType.value == "purchase-orders"
-                ? (appSetting.value?.phone || "+971 56 409 0798")
+                ? (appSetting.value?.phone || "+97143358029")
                 : '',
         order_status: undefined,
         tax_id: undefined,
@@ -409,6 +409,24 @@ const stockManagement = () => {
         addEditVisible.value = false;
     };
 
+    const orderLineCurrency = computed(() => {
+        if (!selectedProducts.value.length) {
+            return "AED";
+        }
+
+        const currencies = [
+            ...new Set(
+                selectedProducts.value.map(
+                    (product) => product.price_currency || "AED"
+                )
+            ),
+        ];
+
+        return currencies.length === 1
+            ? currencies[0]
+            : selectedProducts.value[0].price_currency || "AED";
+    });
+
     // watch(route, (newVal, oldVal) => {
     //     console.log(newVal.params.type);
     //     orderType.value = newVal.params.type;
@@ -427,6 +445,7 @@ const stockManagement = () => {
         selectedProductIds,
         formData,
         productsAmount,
+        orderLineCurrency,
         taxes,
 
         fetchProducts,

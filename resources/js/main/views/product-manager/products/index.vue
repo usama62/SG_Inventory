@@ -261,7 +261,7 @@
                                         record.details
                                     "
                                 >
-                                    {{ formatAmountCurrency(record.details.sales_price) }}
+                                    {{ formatAmountByCurrencyCode(record.details.sales_price, record.details.sales_price_currency) }}
                                 </span>
                                 <span v-else-if="productType == 'variable'">
                                     {{ getVariableProductSalePrice(record) }}
@@ -276,8 +276,9 @@
                                     "
                                 >
                                     {{
-                                        formatAmountCurrency(
-                                            record.details.purchase_price
+                                        formatAmountByCurrencyCode(
+                                            record.details.purchase_price,
+                                            record.details.purchase_price_currency
                                         )
                                     }}
                                 </span>
@@ -365,8 +366,9 @@
                                         "
                                     >
                                         {{
-                                            formatAmountCurrency(
-                                                record.details.sales_price
+                                            formatAmountByCurrencyCode(
+                                                record.details.sales_price,
+                                                record.details.sales_price_currency
                                             )
                                         }}
                                     </template>
@@ -378,8 +380,9 @@
                                         "
                                     >
                                         {{
-                                            formatAmountCurrency(
-                                                record.details.purchase_price
+                                            formatAmountByCurrencyCode(
+                                                record.details.purchase_price,
+                                                record.details.purchase_price_currency
                                             )
                                         }}
                                     </template>
@@ -491,6 +494,7 @@ export default {
             appSetting,
             permsArray,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             getRecursiveCategories,
             filterTreeNode,
             selectedWarehouse,
@@ -661,12 +665,19 @@ export default {
             });
 
             if (minRecord && minRecord.details.sales_price) {
-                priceString += formatAmountCurrency(minRecord.details.sales_price);
+                priceString += formatAmountByCurrencyCode(
+                    minRecord.details.sales_price,
+                    minRecord.details.sales_price_currency
+                );
             }
 
             if (maxRecord && maxRecord.details.sales_price) {
                 priceString +=
-                    " - " + formatAmountCurrency(maxRecord.details.sales_price);
+                    " - " +
+                    formatAmountByCurrencyCode(
+                        maxRecord.details.sales_price,
+                        maxRecord.details.sales_price_currency
+                    );
             }
 
             return priceString;
@@ -682,12 +693,19 @@ export default {
             });
 
             if (minRecord && minRecord.details.sales_price) {
-                priceString += formatAmountCurrency(minRecord.details.purchase_price);
+                priceString += formatAmountByCurrencyCode(
+                    minRecord.details.purchase_price,
+                    minRecord.details.purchase_price_currency
+                );
             }
 
             if (maxRecord && maxRecord.details.sales_price) {
                 priceString +=
-                    " - " + formatAmountCurrency(maxRecord.details.purchase_price);
+                    " - " +
+                    formatAmountByCurrencyCode(
+                        maxRecord.details.purchase_price,
+                        maxRecord.details.purchase_price_currency
+                    );
             }
 
             return priceString;
@@ -728,6 +746,7 @@ export default {
             ...crudVariables,
             permsArray,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
 
             categories,
             brands,

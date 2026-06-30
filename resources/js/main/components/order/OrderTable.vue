@@ -46,13 +46,28 @@
                             </template>
                         </a-typography-link>
                         <template v-if="column.dataIndex === 'paid_amount'">
-                            {{ formatAmountCurrency(record.paid_amount) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    record.paid_amount,
+                                    getOrderCurrency(record)
+                                )
+                            }}
                         </template>
                         <template v-if="column.dataIndex === 'total_amount'">
-                            {{ formatAmountCurrency(record.total) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    record.total,
+                                    getOrderCurrency(record)
+                                )
+                            }}
                         </template>
                         <template v-if="column.dataIndex === 'due_amount'">
-                            {{ formatAmountCurrency(record.due_amount) }}
+                            {{
+                                formatAmountByCurrencyCode(
+                                    record.due_amount,
+                                    getOrderCurrency(record)
+                                )
+                            }}
                         </template>
                         <template v-if="column.dataIndex === 'payment_status'">
                             <PaymentStatus
@@ -494,8 +509,9 @@
                                     "
                                 >
                                     {{
-                                        formatAmountCurrency(
-                                            record.single_unit_price
+                                        formatAmountByCurrencyCode(
+                                            record.single_unit_price,
+                                            record.price_currency
                                         )
                                     }}
                                 </template>
@@ -503,8 +519,9 @@
                                     v-if="column.dataIndex === 'total_discount'"
                                 >
                                     {{
-                                        formatAmountCurrency(
-                                            record.total_discount
+                                        formatAmountByCurrencyCode(
+                                            record.total_discount,
+                                            record.price_currency
                                         )
                                     }}
                                 </template>
@@ -523,8 +540,9 @@
                                             <span>
                                                 {{ order_item_tax.tax_name }} :
                                                 {{
-                                                    formatAmountCurrency(
-                                                        order_item_tax.tax_amount
+                                                    formatAmountByCurrencyCode(
+                                                        order_item_tax.tax_amount,
+                                                        record.price_currency
                                                     )
                                                 }}
                                             </span>
@@ -533,8 +551,9 @@
                                     </span>
                                     <span v-else>
                                         {{
-                                            formatAmountCurrency(
-                                                record.total_tax
+                                            formatAmountByCurrencyCode(
+                                                record.total_tax,
+                                                record.price_currency
                                             )
                                         }}
                                     </span>
@@ -542,7 +561,12 @@
                                 <template
                                     v-if="column.dataIndex === 'subtotal'"
                                 >
-                                    {{ formatAmountCurrency(record.subtotal) }}
+                                    {{
+                                        formatAmountByCurrencyCode(
+                                            record.subtotal,
+                                            record.price_currency
+                                        )
+                                    }}
                                 </template>
                             </template>
                         </a-table>
@@ -565,20 +589,31 @@
                             <a-table-summary-cell :col-span="1">
                                 <a-typography-text strong>
                                     {{
-                                        formatAmountCurrency(totals.totalAmount)
+                                        formatAmountByCurrencyCode(
+                                            totals.totalAmount,
+                                            listSummaryCurrency
+                                        )
                                     }}
                                 </a-typography-text>
                             </a-table-summary-cell>
                             <a-table-summary-cell :col-span="1">
                                 <a-typography-text strong>
                                     {{
-                                        formatAmountCurrency(totals.paidAmount)
+                                        formatAmountByCurrencyCode(
+                                            totals.paidAmount,
+                                            listSummaryCurrency
+                                        )
                                     }}
                                 </a-typography-text>
                             </a-table-summary-cell>
                             <a-table-summary-cell :col-span="1">
                                 <a-typography-text strong>
-                                    {{ formatAmountCurrency(totals.dueAmount) }}
+                                    {{
+                                        formatAmountByCurrencyCode(
+                                            totals.dueAmount,
+                                            listSummaryCurrency
+                                        )
+                                    }}
                                 </a-typography-text>
                             </a-table-summary-cell>
                         </a-table-summary-row>
@@ -744,6 +779,8 @@ export default {
         const datatableVariables = datatable();
         const {
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
+            getOrderCurrency,
             invoiceBaseUrl,
             permsArray,
             calculateOrderFilterString,
@@ -751,6 +788,7 @@ export default {
             selectedWarehouse,
             selectedLang,
             orderStatusColors,
+            appSetting,
         } = common();
         const route = useRoute();
         const { t } = useI18n();
@@ -853,7 +891,7 @@ export default {
             }
 
             datatableVariables.tableUrl.value = {
-                url: `${props.orderType}?fields=id,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode}`,
+                url: `${props.orderType}?fields=id,total_items,total_quantity,xid,unique_id,warehouse_id,x_warehouse_id,warehouse{id,xid,name},from_warehouse_id,x_from_warehouse_id,fromWarehouse{id,xid,name},invoice_number,order_type,order_date,tax_amount,discount,shipping,subtotal,paid_amount,due_amount,order_status,payment_status,total,tax_rate,staff_user_id,x_staff_user_id,staffMember{id,xid,name,profile_image,profile_image_url,shipping_address,tax_number,email,user_type},user_id,x_user_id,user{id,xid,user_type,name,email,address,tax_number,profile_image,profile_image_url,phone},user:details{opening_balance,opening_balance_type,credit_period,credit_limit,due_amount,warehouse_id,x_warehouse_id},orderPayments{id,xid,amount,payment_id,x_payment_id},orderPayments:payment{id,xid,payment_number,amount,payment_mode_id,x_payment_mode_id,date,notes},orderPayments:payment:paymentMode{id,xid,name},items{id,xid,product_id,x_product_id,unit_id,x_unit_id,single_unit_price,unit_price,price_currency,quantity,tax_rate,total_tax,tax_type,total_discount,subtotal,mrp},items:unit{id,xid,name,short_name},items:product{id,xid,name,image,image_url},items:product:unit{id,xid,name,short_name},items:product:details{id,xid,warehouse_id,x_warehouse_id,product_id,x_product_id,current_stock},items:orderItemTaxes{id,xid,order_item_id,order_item_id,tax_name,tax_amount},cancelled,terms_condition,shippingAddress{id,xid,order_id,name,email,phone,address,address,city,state,country,zipcode}`,
                 filterString,
                 filters: {
                     user_id: tableFilter.user_id
@@ -1248,6 +1286,23 @@ export default {
             };
         });
 
+        const listSummaryCurrency = computed(() => {
+            const rows = datatableVariables.table.data || [];
+            const currencies = new Set();
+
+            rows.forEach((row) => {
+                (row.items || []).forEach((item) => {
+                    currencies.add(item.price_currency || "AED");
+                });
+            });
+
+            if (currencies.size === 1) {
+                return [...currencies][0];
+            }
+
+            return appSetting.value?.currency?.code || "AED";
+        });
+
         return {
             columns,
             ...datatableVariables,
@@ -1260,6 +1315,9 @@ export default {
 
             setUrlData,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
+            getOrderCurrency,
+            listSummaryCurrency,
             invoiceBaseUrl,
             permsArray,
 

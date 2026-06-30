@@ -103,11 +103,11 @@
                                 <td>{{ item.product.name }}</td>
                                 <td>{{ item.quantity + "" + item.unit?.short_name }}</td>
                                 <td v-if="selectedWarehouse.show_mrp_on_invoice">
-                                    {{ item.mrp ? formatAmountCurrency(item.mrp) : "-" }}
+                                    {{ item.mrp ? formatAmountByCurrencyCode(item.mrp, item.price_currency) : "-" }}
                                 </td>
-                                <td>{{ formatAmountCurrency(item.unit_price) }}</td>
+                                <td>{{ formatAmountByCurrencyCode(item.unit_price, item.price_currency) }}</td>
                                 <td style="text-align: right">
-                                    {{ formatAmountCurrency(item.subtotal) }}
+                                    {{ formatAmountByCurrencyCode(item.subtotal, item.price_currency) }}
                                 </td>
                             </tr>
                             <tr class="item-row-other">
@@ -120,7 +120,7 @@
                                     {{ $t("stock.order_tax") }}
                                 </td>
                                 <td colspan="2" style="text-align: right">
-                                    {{ formatAmountCurrency(order.tax_amount) }}
+                                    {{ formatOrderAmount(order.tax_amount) }}
                                 </td>
                             </tr>
                             <tr class="item-row-other">
@@ -133,7 +133,7 @@
                                     {{ $t("stock.discount") }}
                                 </td>
                                 <td colspan="2" style="text-align: right">
-                                    {{ formatAmountCurrency(order.discount) }}
+                                    {{ formatOrderAmount(order.discount) }}
                                 </td>
                             </tr>
                             <tr class="item-row-other">
@@ -146,7 +146,7 @@
                                     {{ $t("stock.shipping") }}
                                 </td>
                                 <td colspan="2" style="text-align: right">
-                                    {{ formatAmountCurrency(order.shipping) }}
+                                    {{ formatOrderAmount(order.shipping) }}
                                 </td>
                             </tr>
                         </tbody>
@@ -168,7 +168,7 @@
                             <td style="width: 40%; text-align: center">
                                 <h3 style="margin-bottom: 0px">
                                     {{ $t("common.total") }}:
-                                    {{ formatAmountCurrency(order.total) }}
+                                    {{ formatOrderAmount(order.total) }}
                                 </h3>
                             </td>
                         </tr>
@@ -182,8 +182,8 @@
                         </thead>
                         <tbody>
                             <tr class="paid-amount-row">
-                                <td>{{ formatAmountCurrency(order.paid_amount) }}</td>
-                                <td>{{ formatAmountCurrency(order.due_amount) }}</td>
+                                <td>{{ formatOrderAmount(order.paid_amount) }}</td>
+                                <td>{{ formatOrderAmount(order.due_amount) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -203,7 +203,7 @@
                                         style="margin-right: 5px"
                                     >
                                         {{
-                                            formatAmountCurrency(
+                                            formatOrderAmount(
                                                 currentOrderPayments.amount
                                             )
                                         }}
@@ -237,7 +237,7 @@
                 >
                     <p>
                         {{ $t("invoice.total_discount_on_mrp") }} :
-                        {{ formatAmountCurrency(order.saving_on_mrp) }}
+                        {{ formatOrderAmount(order.saving_on_mrp) }}
                     </p>
                     <p>
                         {{ $t("invoice.total_discount") }} :
@@ -245,7 +245,7 @@
                     </p>
                     <p>
                         {{ $t("invoice.total_tax") }} :
-                        {{ formatAmountCurrency(order.total_tax_on_items) }}
+                        {{ formatOrderAmount(order.total_tax_on_items) }}
                     </p>
                 </div>
                 <div
@@ -283,7 +283,7 @@
 </template>
 
 <script>
-import { ref, defineComponent } from "vue";
+import { ref, defineComponent, computed } from "vue";
 import { PrinterOutlined } from "@ant-design/icons-vue";
 import common from "../../../../common/composable/common";
 import BarcodeGenerator from "../../../../common/components/barcode/BarcodeGenerator.vue";
@@ -299,7 +299,12 @@ export default defineComponent({
         QRcodeGenerator,
     },
     setup(props, { emit }) {
-        const { formatAmountCurrency, formatDate, selectedWarehouse } = common();
+        const { formatAmountCurrency, formatAmountByCurrencyCode, formatDate, selectedWarehouse, getOrderCurrency } = common();
+
+        const orderCurrency = computed(() => getOrderCurrency(props.order));
+
+        const formatOrderAmount = (amount) =>
+            formatAmountByCurrencyCode(amount, orderCurrency.value);
 
         const onClose = () => {
             emit("closed");
@@ -322,6 +327,9 @@ export default defineComponent({
             formatDate,
             selectedWarehouse,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
+            formatOrderAmount,
+            orderCurrency,
             printInvoice,
         };
     },

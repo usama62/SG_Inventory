@@ -142,6 +142,25 @@ const common = () => {
         return parseFloat(parseFloat(amount).toFixed(2));
     };
 
+    const formatAmountByCurrencyCode = (amount, currencyCode = "AED") => {
+        const code = (currencyCode || "AED").toUpperCase();
+        const newAmount = parseFloat(Math.abs(amount || 0))
+            .toFixed(2)
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        let formatted;
+        if (code === "USD") {
+            formatted = `$${newAmount}`;
+        } else if (code === "INR") {
+            formatted = `₹${newAmount}`;
+        } else {
+            formatted = `AED ${newAmount}`;
+        }
+
+        return (amount || 0) < 0 ? `- ${formatted}` : formatted;
+    };
+
     const formatAmountCurrency = (amount) => {
         const newAmount = parseFloat(Math.abs(amount)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
@@ -502,6 +521,22 @@ const common = () => {
         }
     }
 
+    const getOrderCurrency = (orderOrItems, fallback = "AED") => {
+        const items = Array.isArray(orderOrItems)
+            ? orderOrItems
+            : orderOrItems?.items;
+
+        if (!items || !items.length) {
+            return fallback;
+        }
+
+        const currencies = [
+            ...new Set(items.map((item) => item.price_currency || fallback)),
+        ];
+
+        return currencies.length === 1 ? currencies[0] : items[0].price_currency || fallback;
+    };
+
     return {
         menuCollapsed,
         appSetting,
@@ -524,6 +559,8 @@ const common = () => {
         formatQuantity,
         formatAmount,
         formatAmountCurrency,
+        formatAmountByCurrencyCode,
+        getOrderCurrency,
         formatAmountUsingCurrencyObject,
         convertToPositive,
 

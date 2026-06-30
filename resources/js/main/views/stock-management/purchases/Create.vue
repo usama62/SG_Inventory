@@ -272,16 +272,16 @@
                                     />
                                 </template>
                                 <template v-if="column.dataIndex === 'single_unit_price'">
-                                    {{ formatAmountCurrency(record.single_unit_price) }}
+                                    {{ formatAmountByCurrencyCode(record.single_unit_price, record.price_currency) }}
                                 </template>
                                 <template v-if="column.dataIndex === 'total_discount'">
-                                    {{ formatAmountCurrency(record.total_discount) }}
+                                    {{ formatAmountByCurrencyCode(record.total_discount, record.price_currency) }}
                                 </template>
                                 <template v-if="column.dataIndex === 'total_tax'">
-                                    {{ formatAmountCurrency(record.total_tax) }}
+                                    {{ formatAmountByCurrencyCode(record.total_tax, record.price_currency) }}
                                 </template>
                                 <template v-if="column.dataIndex === 'subtotal'">
-                                    {{ formatAmountCurrency(record.subtotal) }}
+                                    {{ formatAmountByCurrencyCode(record.subtotal, record.price_currency) }}
                                 </template>
                                 <template v-if="column.dataIndex === 'action'">
                                     <a-button
@@ -309,11 +309,19 @@
                                         {{ $t("product.subtotal") }}
                                     </a-table-summary-cell>
                                     <a-table-summary-cell>
-                                        {{ formatAmountCurrency(productsAmount.tax) }}
+                                        {{
+                                            formatAmountByCurrencyCode(
+                                                productsAmount.tax,
+                                                orderLineCurrency
+                                            )
+                                        }}
                                     </a-table-summary-cell>
                                     <a-table-summary-cell :col-span="2">
                                         {{
-                                            formatAmountCurrency(productsAmount.subtotal)
+                                            formatAmountByCurrencyCode(
+                                                productsAmount.subtotal,
+                                                orderLineCurrency
+                                            )
                                         }}
                                     </a-table-summary-cell>
                                 </a-table-summary-row>
@@ -762,7 +770,7 @@
                                 {{ $t("stock.order_tax") }}
                             </a-col>
                             <a-col :xs="12" :sm="12" :md="12" :lg="12">
-                                {{ formatAmountCurrency(formData.tax_amount) }}
+                                {{ formatAmountByCurrencyCode(formData.tax_amount, orderLineCurrency) }}
                             </a-col>
                         </a-row>
                         <a-row :gutter="16" class="mt-10">
@@ -770,7 +778,7 @@
                                 {{ $t("stock.discount") }}
                             </a-col>
                             <a-col :xs="12" :sm="12" :md="12" :lg="12">
-                                {{ formatAmountCurrency(formData.discount) }}
+                                {{ formatAmountByCurrencyCode(formData.discount, orderLineCurrency) }}
                             </a-col>
                         </a-row>
                         <a-row :gutter="16" class="mt-10">
@@ -778,7 +786,7 @@
                                 {{ $t("stock.shipping") }}
                             </a-col>
                             <a-col :xs="12" :sm="12" :md="12" :lg="12">
-                                {{ formatAmountCurrency(formData.shipping) }}
+                                {{ formatAmountByCurrencyCode(formData.shipping, orderLineCurrency) }}
                             </a-col>
                         </a-row>
                         <a-row :gutter="16" class="mt-10">
@@ -786,7 +794,7 @@
                                 {{ $t("stock.grand_total") }}
                             </a-col>
                             <a-col :xs="12" :sm="12" :md="12" :lg="12">
-                                {{ formatAmountCurrency(formData.subtotal) }}
+                                {{ formatAmountByCurrencyCode(formData.subtotal, orderLineCurrency) }}
                             </a-col>
                         </a-row>
                         <a-row :gutter="16" class="mt-20 mb-20">
@@ -1008,6 +1016,7 @@ export default {
             appSetting,
             formatAmount,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             taxTypes,
             orderStatus,
             purchaseOrderStatus,
@@ -1025,6 +1034,7 @@ export default {
             selectedProducts,
             formData,
             productsAmount,
+            orderLineCurrency,
             taxes,
 
             recalculateValues,
@@ -1222,6 +1232,7 @@ export default {
             ...toRefs(state),
             formData,
             productsAmount,
+            orderLineCurrency,
             rules,
             loading,
             warehouses,
@@ -1233,6 +1244,7 @@ export default {
             showDeleteConfirm,
             quantityChanged,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             taxChanged,
             recalculateFinalTotal,
             appSetting,

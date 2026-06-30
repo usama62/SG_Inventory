@@ -198,8 +198,9 @@
                                                         "
                                                     >
                                                         {{
-                                                            formatAmountCurrency(
-                                                                record.subtotal
+                                                            formatAmountByCurrencyCode(
+                                                                record.subtotal,
+                                                                record.price_currency
                                                             )
                                                         }}
                                                     </template>
@@ -595,7 +596,7 @@
                                             />
                                         </template>
                                         <template v-if="column.dataIndex === 'subtotal'">
-                                            {{ formatAmountCurrency(record.subtotal) }}
+                                            {{ formatAmountByCurrencyCode(record.subtotal, record.price_currency) }}
                                         </template>
                                         <template v-if="column.dataIndex === 'action'">
                                             <a-button
@@ -987,6 +988,7 @@ export default {
         const {
             formatAmount,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
             appSetting,
             taxTypes,
             permsArray,
@@ -1389,6 +1391,7 @@ export default {
             orderItemColumns,
             formatAmount,
             formatAmountCurrency,
+            formatAmountByCurrencyCode,
 
             containerStyle: {
                 height: window.innerHeight - 110 + "px",
