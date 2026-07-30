@@ -2,102 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Proforma Invoice</title>
   <style>
-    @include('pdf.partials.shams-letterhead-styles')
-    @include('pdf.partials.shams-watermark-overlay-styles')
-    @include('pdf.partials.shams-transparent-cells')
-
-    .doc-title {
+  @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Arial', sans-serif;
+    background: #fff;
+    color: #000;
+    margin: 0;
+    padding: 0;
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+  .container {
+    width: 95%;
+    max-width: 900px;
+    margin: 15px auto;
+    border: 2px solid #000;
+    padding: 18px;
+    position: relative;
+    min-height: 900px;
+  }
+    .header {
       text-align: center;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 18px;
       text-transform: uppercase;
-      margin: 0 0 6px 0;
+      margin-bottom: 12px;
     }
-
     .info-table, .product-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 10.5px;
-      margin-top: 6px;
+      font-size: 11px;
+      margin-top: 25px;
     }
+    .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto; /* important for automatic width adjustment */
+}
 
-    .info-table td {
-      border: 1px solid #111;
-      padding: 4px 5px;
-      vertical-align: top;
-    }
-
+.info-table td {
+    padding: 5px 6px;
+    vertical-align: top;
+}
     .info-table .label {
       font-weight: bold;
       width: 150px;
       white-space: nowrap;
     }
-
     .info-table .value { width: 25%; }
-
+    .info-table .right-align { text-align: left ; }
     .product-table th {
-      background: #111;
+      background: #000;
       color: #fff;
-      padding: 4px 3px;
-      font-weight: bold;
-      font-size: 9px;
-      text-align: center;
-      border: 1px solid #111;
-    }
-
-    .product-table td {
-      border: 1px solid #111;
-      padding: 4px 3px;
-      text-align: center;
+      padding: px 3px;
+      font-weight: normal;
       font-size: 10px;
+      text-align: center;
     }
-
+    .product-table td {
+      border: 1px solid #000;
+      padding: 5px 3px;
+      text-align: center;
+    }
     .product-table .desc { text-align: left; padding-left: 8px; }
-
     .product-table .total-row td {
       font-weight: bold;
+      background: #f0f0f0;
     }
-
     .amount-words {
-      margin: 6px 0;
+      margin: 12px 0;
       font-weight: bold;
-      font-size: 10px;
+      font-size: 11px;
       text-align: left;
-      line-height: 1.3;
     }
-
-    .bank, .declaration { margin-top: 6px; font-size: 10px; line-height: 1.3; }
-
+    .bank, .declaration { margin-top: 12px; font-size: 11px; }
     .bank strong, .declaration strong { display: block; margin-bottom: 3px; }
-
-    .bank td { padding: 1px 0; border: none; background-color: transparent; }
-
+    .bank td { padding: 1px 0; border: none; }
     .signature {
-      margin-top: 10px;
+      margin-top: 25px;
       text-align: right;
-      font-size: 10px;
+      font-size: 11px;
     }
-
     .signature-line {
-      border-bottom: 1px solid #111;
+      border-bottom: 1px solid #000;
       width: 180px;
-      margin: 10px 0 2px auto;
+      margin: 15px 0 3px auto;
     }
-
-    .invoice-stamp {
-      margin-top: 6px;
-      text-align: left;
+    .stamp {
+      position: absolute;
+      bottom: 300px;
+      right: 20px;
+      width: 130px;
+      opacity: 0.9;
+      z-index: 10;
     }
-
-    .invoice-stamp img {
-      width: 75px;
-      height: 75px;
-      display: block;
+    .stamp img { width: 100%; height: auto; }
+    .invoice-footer {
+      position: absolute;
+      bottom: 60px; /* distance from bottom edge */
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 13px;
+      color: #000;
+      border-top: 3px double #7f7f7f;
+      padding-top: 5px;
+    }
+    @media print {
+      body { padding: 0; background: #fff; }
+      .container { border: 2px solid #000; padding: 18px; }
+      .stamp { opacity: 1; }
+    }
+    .info-table td,
+    .info-table tr {
+        border: 1px solid black;
+        padding: 6px;
     }
   </style>
 </head>
+<body>
 @php
 function numberToWords($num)
 {
@@ -159,8 +186,20 @@ function numberToWords($num)
     $orderTotalNative = (float) ($order->total ?? 0);
     $orderTotalAed = \App\Classes\Common::convertProductPriceToAed($orderTotalNative, $orderCurrency);
     $orderTotalUsd = \App\Classes\Common::convertProductPriceToUsd($orderTotalNative, $orderCurrency);
-    $stampSrc = $stamp_src ?? \App\Classes\Common::getCompanyStampDataUri($company);
+@endphp
 
+
+<div class="container">
+
+  <!-- Logo -->
+  <img src="http://72.61.173.29/uploads/companies/company_uu4qzlfzgwfhqvi9ty5z.jpg"
+       alt="logo"
+       style="width: 100%;  height: auto; display: block;">
+
+  <div class="header">PROFORMA INVOICE</div>
+
+  <!-- Info Table -->
+  @php
     $shipperName = optional($warehouse)->name ?? '';
     $invoiceNo = $order->invoice_number ?? '';
     $invoiceDate = $order->order_date ? \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') : '';
@@ -179,58 +218,56 @@ function numberToWords($num)
 
     $marksNos = optional($customer)->marks_and_nos ?? ($order->marks_and_nos ?? '');
     $finalDestination = optional($customer)->final_destination ?? ($order->final_destination ?? '');
-@endphp
-<body>
+  @endphp
 
-@include('pdf.partials.shams-letterhead-open')
-@include('pdf.partials.shams-letterhead-watermark')
-
-<div class="doc-body">
-
-  <div class="doc-title">PROFORMA INVOICE</div>
-
-  <table class="info-table wm-table" cellspacing="0" cellpadding="0">
+  <table class="info-table">
     <tr>
       <td><span class="label">SHIPPER:</span></td>
       <td class="value">{{ $shipperName }}</td>
-      <td><span class="label">INVOICE NO. & DATE:</span></td>
+      <td class="right-align"><span class="label">INVOICE NO. & DATE:</span></td>
       <td class="value">{{ $invoiceNoAndDate }}</td>
     </tr>
+
     <tr>
       <td><span class="label">Contact No#:</span></td>
       <td class="value">{{ $contactNo }}</td>
-      <td><span class="label">TERMS OF DELIVERY:</span></td>
+      <td class="right-align"><span class="label">TERMS OF DELIVERY:</span></td>
       <td class="value">{{ $termsOfDelivery }}</td>
     </tr>
+
     <tr>
       <td><span class="label">BUYER:</span></td>
       <td class="value">{{ $buyer }}</td>
-      <td><span class="label">PAYMENT TERMS:</span></td>
+      <td class="right-align"><span class="label">PAYMENT TERMS:</span></td>
       <td class="value">{{ $paymentTerms }}</td>
     </tr>
+
     <tr>
       <td><span class="label">ADDRESS:</span></td>
       <td class="value">{{ $address }}</td>
-      <td><span class="label">COUNTRY OF<br> ORIGIN OF GOODS:</span></td>
+      <td class="right-align"><span class="label">COUNTRY OF<br> ORIGIN OF GOODS:</span></td>
       <td class="value">{{ $countryOfOrigin }}</td>
     </tr>
+
     <tr>
       <td><span class="label">MARKS & NOS.:</span></td>
       <td class="value">{{ $marksNos }}</td>
-      <td><span class="label">FINAL DESTINATION:</span></td>
+      <td class="right-align"><span class="label">FINAL DESTINATION:</span></td>
       <td class="value">{{ $finalDestination }}</td>
     </tr>
   </table>
 
-  <table class="product-table wm-table" cellspacing="0" cellpadding="0">
+
+  <!-- Product Table -->
+  <table class="product-table">
       <tr>
-        <th>MARKS & NOS.</th>
-        <th>DESCRIPTION OF GOODS</th>
-        <th>PACKING</th>
-        <th>QTY (IN CS)</th>
-        <th>RATE IN USD PER CS</th>
-        <th>RATE IN AED PER CS</th>
-        <th>AMOUNT IN AED</th>
+        <td>MARKS & NOS.</td>
+        <td>DESCRIPTION OF GOODS</td>
+        <td>PACKING</td>
+        <td>QTY (IN CS)</td>
+        <td>RATE IN USD PER CS</td>
+        <td>RATE IN AED PER CS</td>
+        <td>AMOUNT IN AED</td>
       </tr>
       @foreach($order->items as $item)
         @php
@@ -264,10 +301,12 @@ function numberToWords($num)
       </tr>
   </table>
 
+  <!-- Amount in Words -->
   <div class="amount-words">
     AMOUNT (IN WORDS):<br>
     {{ strtoupper($orderCurrency) }} {{ strtoupper(numberToWords($orderTotalNative)) }}
   </div>
+   <!-- Amount in Words -->
   <div class="amount-words">
     AMOUNT IN :<br>
     {{ \App\Classes\Common::formatAmountByCurrencyCode($orderTotalNative, $orderCurrency) }}
@@ -275,9 +314,10 @@ function numberToWords($num)
     ({{ \App\Classes\Common::formatAmountByCurrencyCode($orderTotalUsd, 'USD') }})
   </div>
 
+  <!-- Bank Details -->
   <div class="bank">
     <strong>BANK DETAILS:</strong>
-    <table cellspacing="0" cellpadding="0">
+    <table>
     <tr>
         <td><strong>BENEFICIARY NAME:</strong></td>
         <td>{{ $customer->beneficiary_name ?? $order->beneficiary_name ?? '' }}</td>
@@ -302,29 +342,42 @@ function numberToWords($num)
         <td><strong>BRANCH:</strong></td>
         <td>{{ $customer->branch ?? $order->branch ?? '' }}</td>
     </tr>
-    </table>
+</table>
+
   </div>
 
+  <!-- Declaration -->
   <div class="declaration">
     <strong>DECLARATION:</strong>
     WE CERTIFY THAT THE ORIGIN OF THE GOODS AND CONTENTS TO BE TRUE & CORRECT.
   </div>
 
+  <!-- Signature -->
   <div class="signature">
     <div>SIGNATURE & DATE:</div>
     <div class="signature-line"></div>
     <div style="font-size:10px; margin-top:2px;">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</div>
   </div>
 
-  @if(!empty($stampSrc))
-  <div class="invoice-stamp">
-    <img src="{{ $stampSrc }}" alt="Company Stamp" />
+  <!-- Stamp -->
+  <div class="stamp">
+    <img src="http://72.61.173.29/images/stamp.png" alt="Company Stamp" />
   </div>
-  @endif
+
+  @php
+    $defaultCompanyAddress = "AL fattan plaza\nOffice no: 904\noffice building Al garhood\nDubai\nU.A.E";
+    $companyAddress = $company->address ?? $defaultCompanyAddress;
+    $companyName = $company->name ?? 'SHAMS GLOBAL TRADING FZ LLC';
+    $footerAddress = str_replace(["\r\n", "\r", "\n"], ', ', $companyAddress);
+  @endphp
+
+  <!-- Footer -->
+  <div class="invoice-footer">
+    <p>
+      Mob: {{ $contactNo }}, {{ $companyName }}, {{ $footerAddress }}
+    </p>
+  </div>
 
 </div>
-
-@include('pdf.partials.shams-letterhead-footer')
-
 </body>
 </html>

@@ -205,8 +205,8 @@ class AuthController extends ApiBaseController
             'warehouse' => $warehouse,
             'staffMember' => $staffMember,
             'customer' =>  $customer,
-            
-            // 'barcodeData' => DNS1D::getBarcodePNG("3243243243", 'C128'),
+            'letterhead' => Common::buildShamsLetterheadContext($company),
+            'stamp_src' => Common::getCompanyStampDataUri($company),
         ];
         // dd($pdfData['customer']);
 
@@ -216,7 +216,7 @@ class AuthController extends ApiBaseController
         // return $html = view('pdf', $pdfData);
         
 
-        $pdf = pdf::loadView('pdf', $pdfData);
+        $pdf = Common::loadLetterheadPdf('pdf', $pdfData);
 
         // $pdf = app('dompdf.wrapper');
         // $pdf->loadHTML($html);
@@ -271,7 +271,7 @@ class AuthController extends ApiBaseController
             ]
         );
 
-        $pdf = PDF::loadView('pdf.receipt', $pdfData);
+        $pdf = Common::loadLetterheadPdf('pdf.receipt', $pdfData);
 
     return $pdf->download('receipt-' . $order->unique_id . '.pdf');
 }
@@ -292,6 +292,7 @@ class AuthController extends ApiBaseController
             'warehouse' => $warehouse,
             'staffMember' => $staffMember,
             'customer' => $customer,
+            'letterhead' => Common::buildShamsLetterheadContext($company),
             'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
             'stamp_src' => Common::getCompanyStampDataUri($company),
             'order_currency' => $receiptAmounts['order_currency'],
@@ -320,11 +321,12 @@ class AuthController extends ApiBaseController
             'staffMember' => $staffMember,
             'supplier' => $supplier,
             'customer' => $customer,
+            'letterhead' => Common::buildShamsLetterheadContext($company),
             'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
             'stamp_src' => Common::getCompanyStampDataUri($company),
         ];
 
-        $pdf = PDF::loadView('pdf.purchase-order', $pdfData);
+        $pdf = Common::loadLetterheadPdf('pdf.purchase-order', $pdfData);
 
         return $pdf->download($order->invoice_number . '.pdf');
     }

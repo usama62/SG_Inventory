@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shams Payment Receipt — Letterhead Preview</title>
+    <style>
+        @font-face {
+            font-family: 'Arial Bold';
+            src: url("fonts/Arial-Bold.ttf") format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'GE SS TV';
+            src: url("fonts/GE-SS-TV-Bold.ttf") format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 0 0 32mm 0;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #e8e8e8;
+        }
+
+        body {
+            font-family: 'Arial Bold', Arial, sans-serif;
+            font-weight: bold;
+            color: #111;
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #fff;
+            position: relative;
+            padding-bottom: 34mm;
+        }
+
+        /* ── Exact header (matches provided design PNG) ── */
+        .shams-header-banner {
+            width: 100%;
+            display: block;
+            height: auto;
+        }
+
+        /* HTML header fallback — same layout as banner image */
+        .shams-header {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .shams-header td {
+            border: 0;
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        .shams-header .gold-bar {
+            background: #C59D5F;
+            height: 11px;
+            line-height: 0;
+            font-size: 0;
+        }
+
+        .shams-header .header-left {
+            background: #fff;
+            padding: 10px 10px 12px 16px;
+            width: 57%;
+        }
+
+        .shams-header .header-right {
+            background: #231F20;
+            padding: 10px 16px 10px 10px;
+            width: 43%;
+        }
+
+        .shams-header .logo-cell {
+            width: 86px;
+            padding-right: 12px;
+        }
+
+        .shams-header .logo-cell img {
+            width: 80px;
+            display: block;
+        }
+
+        .shams-header .name-ar {
+            font-family: 'GE SS TV', 'Segoe UI', Tahoma, sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+            color: #000;
+            direction: rtl;
+            text-align: left;
+            line-height: 1.25;
+            margin-bottom: 3px;
+        }
+
+        .shams-header .name-main {
+            font-family: 'Arial Bold', Arial, sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            line-height: 1;
+            letter-spacing: 0.4px;
+            margin-bottom: 2px;
+        }
+
+        .shams-header .name-sub {
+            font-family: 'Arial Bold', Arial, sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+            color: #000;
+            letter-spacing: 3.6px;
+            line-height: 1.1;
+        }
+
+        .shams-header .contact-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .shams-header .contact-table td {
+            color: #C59D5F;
+            font-family: 'Arial Bold', Arial, sans-serif;
+            font-size: 9px;
+            font-weight: bold;
+            line-height: 1.45;
+            padding: 1px 0;
+            vertical-align: top;
+        }
+
+        .shams-header .contact-table .icon-cell {
+            width: 18px;
+            padding-right: 6px;
+        }
+
+        .shams-header .contact-table .icon-cell img {
+            width: 13px;
+            height: 13px;
+            display: block;
+        }
+
+        .shams-header .contact-table .addr-indent {
+            padding-left: 19px;
+        }
+
+        .page-watermark-overlay {
+            position: absolute;
+            top: 280px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .page-watermark-overlay img {
+            width: 520px;
+            max-width: 78%;
+            height: auto;
+        }
+
+        .shams-header-banner {
+            position: relative;
+            z-index: 2;
+        }
+
+        .receipt-body {
+            position: relative;
+            z-index: 1;
+        }
+
+        .doc-footer {
+            position: absolute;
+            z-index: 10;
+        }
+
+        .receipt-body {
+            padding: 18px 15mm 0 15mm;
+        }
+
+        .receipt-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .receipt-table td {
+            border: 1px solid #111;
+            padding: 10px 12px;
+            vertical-align: middle;
+            font-size: 13px;
+            text-align: center;
+            background-color: #fff;
+        }
+
+        .receipt-table .label-cell { width: 40%; }
+
+        .receipt-table .title-row td {
+            font-size: 26px;
+            padding: 14px 10px;
+        }
+
+        .received-by-cell {
+            padding: 12px 14px;
+            text-align: left;
+        }
+
+        .received-by-inner,
+        .received-by-inner td {
+            border: none;
+            padding: 0;
+            text-align: left;
+            background: transparent;
+        }
+
+        .receipt-stamp-cell {
+            padding: 42px 0 6px 0;
+        }
+
+        .receipt-stamp-cell img {
+            width: 90px;
+            height: 90px;
+            margin-left: 72px;
+            margin-top: 28px;
+            display: block;
+        }
+
+        .doc-footer {
+            position: absolute;
+            left: 15mm;
+            right: 15mm;
+            bottom: 12mm;
+            text-align: center;
+            background: #fff;
+        }
+
+        .doc-footer .footer-rule {
+            border-top: 3px double #C59D5F;
+            margin: 0 0 9px 0;
+        }
+
+        .doc-footer p {
+            margin: 0 0 5px 0;
+            font-size: 9.5px;
+            font-weight: bold;
+            color: #C59D5F;
+        }
+
+        @media print {
+            html, body { background: #fff; }
+            .page { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- Exact header image (primary — pixel-perfect match) -->
+    <img class="shams-header-banner" src="images/shams-header-reference.png" width="100%" alt="Shams Universal Trading Header">
+
+    <!-- HTML header fallback (commented out — banner image used) -->
+    <!--
+    <table class="shams-header" cellspacing="0" cellpadding="0">
+        <tr><td colspan="2" class="gold-bar">&nbsp;</td></tr>
+        <tr>
+            <td class="header-left">
+                <table cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td class="logo-cell"><img src="images/shams-logo.png" alt="Shams"></td>
+                        <td>
+                            <div class="name-ar">شمس يونيفرسال تريدينغ ش.م.ح-ذ.م.م</div>
+                            <div class="name-main">SHAMS UNIVERSAL</div>
+                            <div class="name-sub">T R A D I N G F Z - L L C</div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="header-right">
+                <table class="contact-table" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td class="icon-cell"><img src="images/icon-phone-gold.svg" alt=""></td>
+                        <td>+971 4 335 8029</td>
+                    </tr>
+                    <tr>
+                        <td class="icon-cell"><img src="images/icon-mobile-gold.svg" alt=""></td>
+                        <td>+971 56 409 0798</td>
+                    </tr>
+                    <tr>
+                        <td class="icon-cell"><img src="images/icon-email-gold.svg" alt=""></td>
+                        <td>sufiyanjetham@shamsglobalfzllc.ae</td>
+                    </tr>
+                    <tr>
+                        <td class="icon-cell"><img src="images/icon-web-gold.svg" alt=""></td>
+                        <td>shamsglobalfzllc.ae</td>
+                    </tr>
+                    <tr>
+                        <td class="icon-cell"><img src="images/icon-location-gold.svg" alt=""></td>
+                        <td>Al Fattan Plaza, Office # 904</td>
+                    </tr>
+                    <tr>
+                        <td class="icon-cell">&nbsp;</td>
+                        <td class="addr-indent">Office Building, Al Garhood, Dubai-U.A.E</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    -->
+
+    <div class="receipt-body">
+        <table class="receipt-table" cellspacing="0" cellpadding="0">
+            <tr class="title-row">
+                <td colspan="2">PAYMENT RECEIPT CONFIRMATION</td>
+            </tr>
+            <tr>
+                <td class="label-cell">DATE: 25-06-2026</td>
+                <td class="label-cell">RECEIPT NO: SALE-8</td>
+            </tr>
+            <tr style="height:58px">
+                <td class="label-cell">PAYMENT RECEIVED FROM</td>
+                <td>Walk In Customer</td>
+            </tr>
+            <tr style="height:58px">
+                <td class="label-cell">Amount</td>
+                <td>AED 220<br>(Two Hundred Twenty Dirhams.)</td>
+            </tr>
+            <tr>
+                <td class="label-cell">Payment Against</td>
+                <td>—</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="received-by-cell">
+                    <table width="100%" class="received-by-inner" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td>
+                                <strong>RECEIVED BY:</strong><br>
+                                Admin User<br>
+                                SHAMS UNIVERSAL TRADING FZ-LLC
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="receipt-stamp-cell"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="page-watermark-overlay">
+        <img src="images/shams-watermark.png" width="390" alt="">
+    </div>
+
+    <div class="doc-footer">
+        <div class="footer-rule"></div>
+        <p>Mob: +971 56 409 0798 | Email: sufiyanjetham@shamsglobalfzllc.ae | Website: https://shamsglobalfzllc.ae</p>
+        <p><strong>SHAMS UNIVERSAL TRADING FZ-LLC</strong></p>
+        <p>Al Fattan Plaza, Office # 904, Office Building, Al Garhood, Dubai-U.A.E</p>
+    </div>
+
+</div>
+</body>
+</html>

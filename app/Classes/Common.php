@@ -28,6 +28,7 @@ use App\Models\UserDetails;
 use App\Models\Warehouse;
 use App\Models\WarehouseHistory;
 use App\Scopes\CompanyScope;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -392,6 +393,8 @@ class Common
     public static function getReceiptLogoDataUri(?Company $company = null): ?string
     {
         $candidates = [
+            public_path('images/shams-logo.png'),
+            public_path('uploads/shams-logo.png'),
             public_path('uploads/receipt-logo.png'),
             public_path('uploads/receipt-logo.jpg'),
             public_path('uploads/receipt-logo.jpeg'),
@@ -402,6 +405,39 @@ class Common
         if ($company && ! empty($company->light_logo)) {
             $candidates[] = public_path('uploads/companies/' . $company->light_logo);
         }
+
+        foreach ($candidates as $path) {
+            if (is_readable($path)) {
+                $mime = @mime_content_type($path) ?: 'image/png';
+
+                return 'data:' . $mime . ';base64,' . base64_encode((string) file_get_contents($path));
+            }
+        }
+
+        return null;
+    }
+
+    public static function getAssetDataUri(?string $path): ?string
+    {
+        if (! $path || ! is_readable($path)) {
+            return null;
+        }
+
+        $mime = @mime_content_type($path) ?: 'application/octet-stream';
+
+        return 'data:' . $mime . ';base64,' . base64_encode((string) file_get_contents($path));
+    }
+
+    /**
+     * Data-URI Shams letterhead header banner for DomPDF.
+     */
+    public static function getShamsHeaderBannerDataUri(): ?string
+    {
+        $candidates = [
+            public_path('images/shams-header-reference.png'),
+            public_path('images/shams-header-banner.png'),
+            public_path('uploads/shams-header.png'),
+        ];
 
         foreach ($candidates as $path) {
             if (is_readable($path)) {
@@ -434,6 +470,66 @@ class Common
         }
 
         return null;
+    }
+
+    /**
+     * Shared Shams letterhead context for PDF reports (header, watermark, footer).
+     */
+    public static function buildShamsLetterheadContext(?Company $company = null): array
+    {
+        $defaultCompanyAddress = 'Al Fattan Plaza, Office # 904, Office Building, Al Garhood, Dubai-U.A.E';
+        $companyAddressRaw = $company?->address ?: $defaultCompanyAddress;
+        $footerAddress = trim(preg_replace('/\s+/', ' ', str_replace(["\r\n", "\r", "\n"], ', ', $companyAddressRaw)));
+        $footerCompanyName = $company?->name ?: 'SHAMS UNIVERSAL TRADING FZ-LLC';
+        $footerWebsite = $company?->website ?: 'https://shamsglobalfzllc.ae';
+        $footerWebsiteDisplay = preg_replace('#^https?://#', '', rtrim($footerWebsite, '/'));
+        $footerPhone = $company?->phone ?: '+971 56 409 0798';
+        $footerEmail = $company?->email ?: 'sufiyanjetham@shamsglobalfzllc.ae';
+
+        return [
+            'footerAddress' => $footerAddress,
+            'footerCompanyName' => $footerCompanyName,
+            'footerWebsite' => $footerWebsite,
+            'footerWebsiteDisplay' => $footerWebsiteDisplay,
+            'footerPhone' => $footerPhone,
+            'footerEmail' => $footerEmail,
+            'headerBannerSrc' => self::getShamsHeaderBannerDataUri(),
+            'watermarkSrc' => self::getAssetDataUri(public_path('images/shams-watermark.png')),
+            'logoSrc' => self::getReceiptLogoDataUri($company),
+            'companyNameAr' => 'شمس يونيفرسال تريدينغ ش.م.ح-ذ.م.م',
+            'companyNameMain' => 'SHAMS UNIVERSAL',
+            'companyNameSub' => 'T R A D I N G F Z - L L C',
+            'headerPhoneLandline' => '+971 4 335 8029',
+            'headerPhoneMobile' => $footerPhone,
+            'headerEmail' => $footerEmail,
+            'headerWebsiteDisplay' => $footerWebsiteDisplay,
+            'headerAddressLine1' => 'Al Fattan Plaza, Office # 904',
+            'headerAddressLine2' => 'Office Building, Al Garhood, Dubai-U.A.E',
+            'iconPhoneSrc' => self::getAssetDataUri(public_path('images/icon-phone-gold.svg')),
+            'iconMobileSrc' => self::getAssetDataUri(public_path('images/icon-mobile-gold.svg')),
+            'iconEmailSrc' => self::getAssetDataUri(public_path('images/icon-email-gold.svg')),
+            'iconWebSrc' => self::getAssetDataUri(public_path('images/icon-web-gold.svg')),
+            'iconLocationSrc' => self::getAssetDataUri(public_path('images/icon-location-gold.svg')),
+        ];
+    }
+
+    /**
+     * Load a letterhead PDF with DomPDF options tuned to match the HTML preview.
+     */
+    public static function loadLetterheadPdf(string $view, array $data)
+    {
+        return Pdf::loadView($view, $data)
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'isFontSubsettingEnabled' => true,
+                'defaultFont' => 'dejavu sans',
+                'chroot' => base_path(),
+                'fontDir' => storage_path('fonts'),
+                'fontCache' => storage_path('fonts'),
+                'tempDir' => storage_path('app'),
+            ]);
     }
 
     public static function generateOrderUniqueId()
