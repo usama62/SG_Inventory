@@ -74,8 +74,27 @@
 
     .bank td { padding: 1px 0; border: none; background-color: transparent; }
 
-    .signature {
+    .signature-stamp-block {
       margin-top: 10px;
+      text-align: right;
+    }
+
+    .invoice-stamp {
+      margin-bottom: 0;
+      text-align: right;
+    }
+
+    .invoice-stamp img {
+      width: 75px;
+      height: 75px;
+      display: inline-block;
+    }
+
+    .signature-room {
+      height: 36px;
+    }
+
+    .signature {
       text-align: right;
       font-size: 10px;
     }
@@ -83,18 +102,7 @@
     .signature-line {
       border-bottom: 1px solid #111;
       width: 180px;
-      margin: 10px 0 2px auto;
-    }
-
-    .invoice-stamp {
-      margin-top: 6px;
-      text-align: left;
-    }
-
-    .invoice-stamp img {
-      width: 75px;
-      height: 75px;
-      display: block;
+      margin: 4px 0 2px auto;
     }
   </style>
 </head>
@@ -310,17 +318,20 @@ function numberToWords($num)
     WE CERTIFY THAT THE ORIGIN OF THE GOODS AND CONTENTS TO BE TRUE & CORRECT.
   </div>
 
-  <div class="signature">
-    <div>SIGNATURE & DATE:</div>
-    <div class="signature-line"></div>
-    <div style="font-size:10px; margin-top:2px;">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</div>
-  </div>
+  <div class="signature-stamp-block">
+    @if(!empty($stampSrc))
+    <div class="invoice-stamp">
+      <img src="{{ $stampSrc }}" alt="Company Stamp" />
+    </div>
+    <div class="signature-room"></div>
+    @endif
 
-  @if(!empty($stampSrc))
-  <div class="invoice-stamp">
-    <img src="{{ $stampSrc }}" alt="Company Stamp" />
+    <div class="signature">
+      <div>SIGNATURE & DATE:</div>
+      <div class="signature-line"></div>
+      <div style="font-size:10px; margin-top:2px;">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</div>
+    </div>
   </div>
-  @endif
 
 </div>
 

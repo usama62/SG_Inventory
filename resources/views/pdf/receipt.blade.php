@@ -43,15 +43,39 @@
         }
 
         .receipt-stamp-cell {
-            padding: 28px 0 4px 0;
+            padding: 16px 0 0 0;
         }
 
         .receipt-stamp-cell img {
             width: 80px;
             height: 80px;
             margin-left: 72px;
-            margin-top: 16px;
             display: block;
+        }
+
+        .receipt-signature-block {
+            padding: 0 0 8px 72px;
+            text-align: left;
+        }
+
+        .receipt-signature-room {
+            height: 36px;
+        }
+
+        .receipt-signature-label {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .receipt-signature-line {
+            border-bottom: 1px solid #111;
+            width: 180px;
+            margin: 0 0 4px 0;
+        }
+
+        .receipt-signature-date {
+            font-size: 10px;
         }
     </style>
 </head>
@@ -119,6 +143,16 @@
                             </td>
                         </tr>
                         @endif
+                        <tr>
+                            <td class="receipt-signature-block">
+                                @if(!empty($stampSrc))
+                                <div class="receipt-signature-room"></div>
+                                @endif
+                                <div class="receipt-signature-label">SIGNATURE &amp; DATE:</div>
+                                <div class="receipt-signature-line"></div>
+                                <div class="receipt-signature-date">{{ $receiptDate }}</div>
+                            </td>
+                        </tr>
                     </table>
                 </td>
             </tr>
