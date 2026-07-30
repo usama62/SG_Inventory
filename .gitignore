@@ -4,6 +4,9 @@
 /storage/*.key
 /storage/logs/*
 /storage/app/public/backup/*
+/storage/app/dompdf-fonts/*
+/storage/fonts/*.ufm
+/storage/fonts/*.ufm.json
 /vendor
 .env
 .env.backup

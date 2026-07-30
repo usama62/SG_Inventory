@@ -1,17 +1,24 @@
+@php
+    $dompdfFontsDir = \App\Classes\Common::dompdfFontsPath();
+    $arialBoldFont = $dompdfFontsDir . DIRECTORY_SEPARATOR . 'Arial-Bold.ttf';
+    $geSsTvFont = $dompdfFontsDir . DIRECTORY_SEPARATOR . 'GE-SS-TV-Bold.ttf';
+@endphp
+@if(is_readable($arialBoldFont))
 @font-face {
     font-family: 'Arial Bold';
-    src: url("{{ public_path('fonts/Arial-Bold.ttf') }}") format('truetype'),
-         url("{{ storage_path('fonts/ARIALBD.TTF') }}") format('truetype');
+    src: url("{{ $arialBoldFont }}") format('truetype');
     font-weight: bold;
     font-style: normal;
 }
+@endif
+@if(is_readable($geSsTvFont))
 @font-face {
     font-family: 'GE SS TV';
-    src: url("{{ public_path('fonts/GE-SS-TV-Bold.ttf') }}") format('truetype'),
-         url("{{ storage_path('fonts/GE-SS-TV-Bold.ttf') }}") format('truetype');
+    src: url("{{ $geSsTvFont }}") format('truetype');
     font-weight: bold;
     font-style: normal;
 }
+@endif
 
 @page {
     size: A4 portrait;

@@ -514,10 +514,44 @@ class Common
     }
 
     /**
+     * Writable DomPDF fonts directory. TTF sources are copied here from public/fonts
+     * so DomPDF can also write its .ufm metric cache (it writes next to the font file).
+     */
+    public static function dompdfFontsPath(): string
+    {
+        $path = storage_path('app/dompdf-fonts');
+
+        if (!is_dir($path)) {
+            mkdir($path, 0755, true);
+        }
+
+        $sources = [
+            'Arial-Bold.ttf' => public_path('fonts/Arial-Bold.ttf'),
+            'GE-SS-TV-Bold.ttf' => public_path('fonts/GE-SS-TV-Bold.ttf'),
+        ];
+
+        foreach ($sources as $filename => $source) {
+            if (!is_readable($source)) {
+                continue;
+            }
+
+            $dest = $path . DIRECTORY_SEPARATOR . $filename;
+
+            if (!is_readable($dest) || filesize($dest) !== filesize($source)) {
+                copy($source, $dest);
+            }
+        }
+
+        return $path;
+    }
+
+    /**
      * Load a letterhead PDF with DomPDF options tuned to match the HTML preview.
      */
     public static function loadLetterheadPdf(string $view, array $data)
     {
+        $fontDir = self::dompdfFontsPath();
+
         return Pdf::loadView($view, $data)
             ->setPaper('a4', 'portrait')
             ->setOptions([
@@ -526,8 +560,8 @@ class Common
                 'isFontSubsettingEnabled' => true,
                 'defaultFont' => 'dejavu sans',
                 'chroot' => base_path(),
-                'fontDir' => storage_path('fonts'),
-                'fontCache' => storage_path('fonts'),
+                'fontDir' => $fontDir,
+                'fontCache' => $fontDir,
                 'tempDir' => storage_path('app'),
             ]);
     }
