@@ -434,6 +434,8 @@ class Common
     public static function getShamsHeaderBannerDataUri(): ?string
     {
         $candidates = [
+            public_path('images/shams-header-reference.jpeg'),
+            public_path('images/shams-header-reference.jpg'),
             public_path('images/shams-header-reference.png'),
             public_path('images/shams-header-banner.png'),
             public_path('uploads/shams-header.png'),
