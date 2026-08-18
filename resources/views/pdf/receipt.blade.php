@@ -47,8 +47,8 @@
         }
 
         .receipt-stamp-cell img {
-            width: 80px;
-            height: 80px;
+            width: 75px;
+            height: 75px;
             margin-left: 72px;
             display: block;
         }
@@ -59,19 +59,32 @@
         }
 
         .receipt-signature-room {
-            height: 36px;
+            height: 6px;
         }
 
         .receipt-signature-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 0;
+        }
+
+        .receipt-signature-image-wrap {
+            width: 180px;
+            height: 48px;
+            margin: 2px 0 -2px 0;
+        }
+
+        .receipt-signature-handwritten {
+            width: 118px;
+            height: auto;
+            display: block;
+            margin: 0 0 0 12px;
         }
 
         .receipt-signature-line {
             border-bottom: 1px solid #111;
             width: 180px;
-            margin: 0 0 4px 0;
+            margin: 0 0 2px 0;
         }
 
         .receipt-signature-date {
@@ -87,6 +100,7 @@
     $receivedByName = optional($staffMember)->name ?? '________________';
     $receivedByCompany = $company->name ?? 'SHAMS UNIVERSAL TRADING FZ-LLC';
     $stampSrc = $stamp_src ?? \App\Classes\Common::getCompanyStampDataUri($company);
+    $signatureSrc = $signature_src ?? \App\Classes\Common::getInvoiceSignatureDataUri();
 
     $displayAmountFigure = $amount_figure
         ?? \App\Classes\Common::formatAmountByCurrencyCode(
@@ -149,6 +163,11 @@
                                 <div class="receipt-signature-room"></div>
                                 @endif
                                 <div class="receipt-signature-label">SIGNATURE &amp; DATE:</div>
+                                @if(!empty($signatureSrc))
+                                <div class="receipt-signature-image-wrap">
+                                    <img class="receipt-signature-handwritten" src="{{ $signatureSrc }}" alt="Signature">
+                                </div>
+                                @endif
                                 <div class="receipt-signature-line"></div>
                                 <div class="receipt-signature-date">{{ $receiptDate }}</div>
                             </td>

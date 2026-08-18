@@ -207,6 +207,7 @@ class AuthController extends ApiBaseController
             'customer' =>  $customer,
             'letterhead' => Common::buildShamsLetterheadContext($company),
             'stamp_src' => Common::getCompanyStampDataUri($company),
+            'signature_src' => Common::getInvoiceSignatureDataUri(),
         ];
         // dd($pdfData['customer']);
 
@@ -295,6 +296,7 @@ class AuthController extends ApiBaseController
             'letterhead' => Common::buildShamsLetterheadContext($company),
             'receipt_logo_src' => Common::getReceiptLogoDataUri($company),
             'stamp_src' => Common::getCompanyStampDataUri($company),
+            'signature_src' => Common::getInvoiceSignatureDataUri(),
             'order_currency' => $receiptAmounts['order_currency'],
             'amount_figure' => $receiptAmounts['amount_figure'],
             'amount_words_line' => $receiptAmounts['amount_words_line'],

@@ -91,7 +91,7 @@
     }
 
     .signature-room {
-      height: 36px;
+      height: 6px;
     }
 
     .signature {
@@ -99,10 +99,24 @@
       font-size: 10px;
     }
 
+    .signature-image-wrap {
+      width: 180px;
+      height: 48px;
+      margin: 2px 0 -2px auto;
+      text-align: left;
+    }
+
+    .signature-handwritten {
+      width: 118px;
+      height: auto;
+      display: block;
+      margin: 0 0 0 12px;
+    }
+
     .signature-line {
       border-bottom: 1px solid #111;
       width: 180px;
-      margin: 4px 0 2px auto;
+      margin: 0 0 2px auto;
     }
   </style>
 </head>
@@ -168,6 +182,7 @@ function numberToWords($num)
     $orderTotalAed = \App\Classes\Common::convertProductPriceToAed($orderTotalNative, $orderCurrency);
     $orderTotalUsd = \App\Classes\Common::convertProductPriceToUsd($orderTotalNative, $orderCurrency);
     $stampSrc = $stamp_src ?? \App\Classes\Common::getCompanyStampDataUri($company);
+    $signatureSrc = $signature_src ?? \App\Classes\Common::getInvoiceSignatureDataUri();
 
     $shipperName = optional($warehouse)->name ?? '';
     $invoiceNo = $order->invoice_number ?? '';
@@ -328,6 +343,11 @@ function numberToWords($num)
 
     <div class="signature">
       <div>SIGNATURE & DATE:</div>
+      @if(!empty($signatureSrc))
+      <div class="signature-image-wrap">
+        <img class="signature-handwritten" src="{{ $signatureSrc }}" alt="Signature">
+      </div>
+      @endif
       <div class="signature-line"></div>
       <div style="font-size:10px; margin-top:2px;">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</div>
     </div>

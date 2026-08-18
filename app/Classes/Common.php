@@ -435,8 +435,8 @@ class Common
     {
         $candidates = [
             public_path('images/shams-header-reference.png'),
-            public_path('images/shams-header-reference.jpeg'),
-            public_path('images/shams-header-reference.jpg'),
+            public_path('images/shams-header-reference.png'),
+            public_path('images/shams-header-reference.png'),
             public_path('images/shams-header-banner.png'),
             public_path('uploads/shams-header.png'),
         ];
@@ -461,6 +461,28 @@ class Common
             public_path('images/stamp.png'),
             public_path('uploads/stamp.png'),
             public_path('uploads/companies/stamp.png'),
+        ];
+
+        foreach ($candidates as $path) {
+            if (is_readable($path)) {
+                $mime = @mime_content_type($path) ?: 'image/png';
+
+                return 'data:' . $mime . ';base64,' . base64_encode((string) file_get_contents($path));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Data-URI handwritten invoice signature for DomPDF.
+     */
+    public static function getInvoiceSignatureDataUri(): ?string
+    {
+        $candidates = [
+            public_path('images/invoice-signature.png'),
+            public_path('uploads/invoice-signature.png'),
+            public_path('uploads/signature.png'),
         ];
 
         foreach ($candidates as $path) {
